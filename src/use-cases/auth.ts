@@ -1,6 +1,7 @@
 import { animals, colors, uniqueNamesGenerator } from "unique-names-generator"
 
 import { CustomError, LoginError } from "@/errors"
+import { User } from "@/db/schemas"
 import {
   createMagicLinkToken,
   deleteMagicToken,
@@ -33,7 +34,7 @@ import {
   sendVerifyEmail,
 } from "./utils"
 
-export async function loginUseCase(email: string, password: string) {
+export async function loginUseCase(email: User["email"], password: string) {
   const user = await getUserByEmail(email)
 
   if (!user) {
@@ -49,7 +50,7 @@ export async function loginUseCase(email: string, password: string) {
   return { id: user.id }
 }
 
-export async function signUpUseCase(email: string, password: string) {
+export async function signUpUseCase(email: User["email"], password: string) {
   const existingUser = await getUserByEmail(email)
 
   if (existingUser) {
@@ -88,7 +89,10 @@ export async function verifyEmailUseCase(token: string) {
   return userId
 }
 
-export async function sendMagicLinkUseCase(email: string, from?: string) {
+export async function sendMagicLinkUseCase(
+  email: User["email"],
+  from?: string
+) {
   const token = await createMagicLinkToken(email)
   await sendMagicLinkEmail(email, token, from)
 }
@@ -122,7 +126,7 @@ export async function signInWithMagicLinkUseCase(token: string) {
   }
 }
 
-export async function sendForgotPasswordUseCase(email: string) {
+export async function sendForgotPasswordUseCase(email: User["email"]) {
   const user = await getUserByEmail(email)
 
   if (!user) {

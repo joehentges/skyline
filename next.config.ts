@@ -6,19 +6,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "api.dicebear.com",
-        port: "",
-      },
-      {
-        protocol: "https",
-        hostname: "placehold.co",
-        port: "",
+        hostname: "*",
       },
     ],
-  },
-  webpack: (config) => {
-    config.externals.push("@node-rs/argon2", "@node-rs/bcrypt")
-    return config
   },
 }
 

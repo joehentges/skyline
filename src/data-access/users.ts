@@ -1,24 +1,21 @@
+import argon2 from "argon2"
 import { eq } from "drizzle-orm"
-import { Argon2id } from "oslo/password"
 
-import { PrimaryKey } from "@/types"
 import { database } from "@/db"
 import { User, users } from "@/db/schemas"
 
 export async function hashPassword(password: string): Promise<string> {
-  const argon2id = new Argon2id()
-  return argon2id.hash(password)
+  return argon2.hash(password)
 }
 
 export async function verifyPasswordHash(
   hash: string,
   password: string
 ): Promise<boolean> {
-  const argon2id = new Argon2id()
-  return argon2id.verify(hash, password)
+  return argon2.verify(hash, password)
 }
 
-export async function getUser(userId: PrimaryKey): Promise<User | undefined> {
+export async function getUser(userId: User["id"]): Promise<User | undefined> {
   const user = await database.query.users.findFirst({
     where: eq(users.id, userId),
   })
@@ -26,7 +23,9 @@ export async function getUser(userId: PrimaryKey): Promise<User | undefined> {
   return user
 }
 
-export async function getUserByEmail(email: string): Promise<User | undefined> {
+export async function getUserByEmail(
+  email: User["email"]
+): Promise<User | undefined> {
   const user = await database.query.users.findFirst({
     where: eq(users.email, email),
   })
@@ -35,7 +34,7 @@ export async function getUserByEmail(email: string): Promise<User | undefined> {
 }
 
 export async function verifyPassword(
-  userId: PrimaryKey,
+  userId: User["id"],
   plainTextPassword: string
 ): Promise<boolean> {
   const user = await getUser(userId)
@@ -54,14 +53,14 @@ export async function verifyPassword(
 }
 
 export async function updateUser(
-  userId: PrimaryKey,
+  userId: User["id"],
   updatedUser: Partial<User>
 ): Promise<void> {
   await database.update(users).set(updatedUser).where(eq(users.id, userId))
 }
 
 export async function updatePassword(
-  userId: PrimaryKey,
+  userId: User["id"],
   password: string,
   trx = database
 ): Promise<void> {
@@ -74,7 +73,7 @@ export async function updatePassword(
     .where(eq(users.id, userId))
 }
 
-export async function setEmailVerified(userId: PrimaryKey): Promise<void> {
+export async function setEmailVerified(userId: User["id"]): Promise<void> {
   await database
     .update(users)
     .set({
@@ -84,9 +83,9 @@ export async function setEmailVerified(userId: PrimaryKey): Promise<void> {
 }
 
 export async function createUser(
-  email: string,
+  email: User["email"],
   password: string,
-  displayName: string
+  displayName: User["displayName"]
 ): Promise<User> {
   const hash = await hashPassword(password)
   const [user] = await database
@@ -102,8 +101,8 @@ export async function createUser(
 }
 
 export async function createMagicUser(
-  email: string,
-  displayName: string
+  email: User["email"],
+  displayName: User["displayName"]
 ): Promise<User> {
   const [user] = await database
     .insert(users)

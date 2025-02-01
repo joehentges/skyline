@@ -4,8 +4,8 @@ import { cache } from "react"
 import { cookies as nextCookies, headers as nextHeaders } from "next/headers"
 import { redirect } from "next/navigation"
 
-import { PrimaryKey } from "@/types"
 import { signInUrl } from "@/config"
+import { User } from "@/db/schemas"
 import {
   createSession,
   generateSessionToken,
@@ -31,7 +31,7 @@ export const assertAuthenticated = async () => {
   return user
 }
 
-export async function setSession(userId: PrimaryKey) {
+export async function setSession(userId: User["id"]) {
   const sessionToken = generateSessionToken()
   const session = await createSession(sessionToken, userId)
   const cookies = await nextCookies()

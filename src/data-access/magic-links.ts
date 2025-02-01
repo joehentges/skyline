@@ -2,11 +2,13 @@ import { eq } from "drizzle-orm"
 
 import { TOKEN_LENGTH, TOKEN_TTL } from "@/config"
 import { database } from "@/db"
-import { MagicLink, magicLinks } from "@/db/schemas"
+import { MagicLink, magicLinks, User } from "@/db/schemas"
 
 import { generateRandomToken } from "./utils"
 
-export async function createMagicLinkToken(email: string): Promise<string> {
+export async function createMagicLinkToken(
+  email: User["email"]
+): Promise<string> {
   const token = await generateRandomToken(TOKEN_LENGTH)
   const tokenExpiresAt = new Date(Date.now() + TOKEN_TTL)
 

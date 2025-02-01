@@ -1,14 +1,13 @@
 import { eq } from "drizzle-orm"
 
-import { PrimaryKey } from "@/types"
 import { TOKEN_LENGTH, TOKEN_TTL } from "@/config"
 import { database } from "@/db"
-import { ResetToken, resetTokens } from "@/db/schemas"
+import { ResetToken, resetTokens, User } from "@/db/schemas"
 
 import { generateRandomToken } from "./utils"
 
 export async function createPasswordResetToken(
-  userId: PrimaryKey
+  userId: User["id"]
 ): Promise<string> {
   const token = await generateRandomToken(TOKEN_LENGTH)
   const tokenExpiresAt = new Date(Date.now() + TOKEN_TTL)

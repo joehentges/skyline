@@ -1,14 +1,13 @@
 import { eq } from "drizzle-orm"
 
-import { PrimaryKey } from "@/types"
 import { TOKEN_LENGTH, VERIFY_EMAIL_TTL } from "@/config"
 import { database } from "@/db"
-import { VerifyEmailToken, verifyEmailTokens } from "@/db/schemas"
+import { User, VerifyEmailToken, verifyEmailTokens } from "@/db/schemas"
 
 import { generateRandomToken } from "./utils"
 
 export async function createVerifyEmailToken(
-  userId: PrimaryKey
+  userId: User["id"]
 ): Promise<string> {
   const token = await generateRandomToken(TOKEN_LENGTH)
   const tokenExpiresAt = new Date(Date.now() + VERIFY_EMAIL_TTL)

@@ -3,11 +3,11 @@ import { Inter, Roboto } from "next/font/google"
 
 import "@/styles/globals.css"
 
+import { siteConfig } from "@/config/site"
 import { Providers } from "@/providers"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
-import { siteConfig } from "@/config/site"
 
 const fontBase = Inter({
   subsets: ["latin"],

@@ -34,7 +34,7 @@ export function UserDropdown(props: UserDropdownProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="group flex h-9 w-9 w-full flex-row items-center space-x-3">
+      <DropdownMenuTrigger className="group flex h-9 w-full flex-row items-center space-x-3">
         <Image
           src={`https://api.dicebear.com/9.x/initials/svg?scale=75&seed=${displayName}`}
           alt="avatar"
@@ -44,7 +44,7 @@ export function UserDropdown(props: UserDropdownProps) {
         />
         <div
           className={cn(
-            "flex w-full items-center transition-all",
+            "flex w-full items-center transition-all duration-500",
             showDisplayName ? "opacity-100" : "opacity-0"
           )}
         >

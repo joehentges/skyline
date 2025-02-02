@@ -24,11 +24,11 @@ export function SideNav(props: SideNavProps) {
   return (
     <div
       className={cn(
-        "flex flex-col justify-between bg-muted-foreground/30 p-4 transition-all duration-300 dark:bg-muted-foreground/10",
+        "flex flex-col justify-between bg-muted-foreground/20 p-4 transition-all duration-300 dark:bg-muted-foreground/10",
         navExpanded ? "w-[275px]" : "w-[70px]"
       )}
     >
-      <div id="top-nav" className="flex flex-col gap-y-6">
+      <div id="top-nav" className="space-y-8">
         <button
           onClick={() => setNavExpanded(!navExpanded)}
           className="w-fit rounded-full p-2 transition-colors hover:bg-background/50"
@@ -39,16 +39,26 @@ export function SideNav(props: SideNavProps) {
             <AlignJustifyIcon className="h-5 w-5" />
           )}
         </button>
-        <NavLink
-          navExpanded={navExpanded}
-          icon="HomeIcon"
-          label="Home"
-          href="/"
-        />
+        <div className="space-y-2">
+          <NavLink
+            navExpanded={navExpanded}
+            icon="HomeIcon"
+            label="Home"
+            href="/home-alt"
+          />
+          <NavLink
+            navExpanded={navExpanded}
+            icon="LibraryIcon"
+            label="Library"
+            href="/library"
+          />
+        </div>
       </div>
 
-      <div id="bottom-nav" className="flex flex-col gap-y-6">
-        <ChangeTheme navExpanded={navExpanded} />
+      <div id="bottom-nav" className="space-y-8">
+        <div className="space-y-2">
+          <ChangeTheme navExpanded={navExpanded} />
+        </div>
 
         <UserDropdown
           navExpanded={navExpanded}

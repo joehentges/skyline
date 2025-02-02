@@ -10,7 +10,6 @@ export default async function HomeAltPage() {
           Hello, {user?.displayName.split(" ")[0]}
         </p>
       </div>
-      <p>Main body</p>
     </>
   )
 }

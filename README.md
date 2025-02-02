@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Monolithic Boilerplate
 
 ## Getting Started
 
-First, run the development server:
+First, create and modify your `.env` file. Note: the `.env.exmaple` file. _Note, `DATABASE_URL` and `REDIS_URL` point to local docker containers._
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+NODE_ENV=development
+HOST_NAME=http://localhost:3000
+NEXT_PUBLIC_ROOT_DOMAIN=localhost:3000
+DATABASE_URL=postgresql://postgres:password@localhost:5432/postgres
+REDIS_URL=redis://:password@localhost:6379
+RESEND_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+RESEND_EMAIL_FROM=email@provider.com
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Next, run the following commands to start the server (docker compose commands optional):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+docker compose build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+docker compose start
 
-## Learn More
+npm install
 
-To learn more about Next.js, take a look at the following resources:
+npm run db:seed
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open the app at [http://localhost:3000](http://localhost:3000)
 
-## Deploy on Vercel
+Two users are initially seeded with the `pnpm db:seed` command. Modify the `src\db\seed\users.ts` file to change them.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+email: testing@example.com
+password: password
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+To get an interactive view of the database:
+
+```bash
+npm run db:studio
+```
+
+Open the app at [https://local.drizzle.studio/](https://local.drizzle.studio/)

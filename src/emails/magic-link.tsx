@@ -5,7 +5,6 @@ import {
   Head,
   Hr,
   Html,
-  Img,
   Link,
   Preview,
   Section,
@@ -35,13 +34,9 @@ export function MagicLinkEmail({
           <Body className="mx-auto my-auto bg-white font-sans">
             <Container className="mx-auto my-[40px] w-[465px] rounded border border-solid border-[#eaeaea] p-[20px]">
               <Section className="mt-[32px]">
-                <Img
-                  src={`${HOST_NAME}/group.jpeg`}
-                  width="160"
-                  height="48"
-                  alt="StarterKit"
-                  className="mx-auto my-0"
-                />
+                <Text className="text-center text-3xl font-bold">
+                  {siteConfig.name}
+                </Text>
               </Section>
 
               <Section className="mb-[32px] mt-[32px] text-center">
@@ -64,8 +59,7 @@ export function MagicLinkEmail({
               <Hr className="mx-0 my-[26px] w-full border border-solid border-[#eaeaea]" />
 
               <Text className="flex items-center justify-center text-[12px] leading-[24px] text-[#666666]">
-                © {new Date().getFullYear()} {siteConfig.name}. All rights
-                reserved.
+                © 2025 {siteConfig.name}. All rights reserved.
               </Text>
             </Container>
           </Body>

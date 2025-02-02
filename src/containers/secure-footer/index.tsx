@@ -8,9 +8,7 @@ export function SecureFooter() {
     <div className="border-t py-4">
       <div className="container flex flex-col items-center justify-between gap-y-2 text-sm text-muted-foreground md:flex-row">
         <div>
-          <p>
-            © {new Date().getFullYear()} {siteConfig.name}
-          </p>
+          <p>© 2025 {siteConfig.name}</p>
         </div>
 
         <div className="flex flex-col gap-y-2 text-center md:flex-row md:gap-x-4">

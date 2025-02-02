@@ -6,8 +6,7 @@ export const verifyEmailTokens = pgTable("verify_email_tokens", {
   id: serial("id").primaryKey(),
   userId: serial("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" })
-    .unique(),
+    .references(() => users.id, { onDelete: "cascade" }),
   token: text("token"),
   tokenExpiresAt: timestamp("token_expires_at", { mode: "date" }),
 })

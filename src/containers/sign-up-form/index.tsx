@@ -3,9 +3,10 @@
 import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Terminal, WandSparkles } from "lucide-react"
+import { useAction } from "next-safe-action/hooks"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
-import { useServerAction } from "zsa-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -18,25 +19,13 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Captcha } from "@/components/captcha"
 import { LoaderButton } from "@/components/loader-button"
-import { useToast } from "@/hooks/use-toast"
 
 import { signUpAction } from "./actions"
-
-const signUpFormSchema = z
-  .object({
-    email: z.string().email(),
-    password: z.string().min(8),
-    confirmPassword: z.string().min(8),
-  })
-  .refine(({ password, confirmPassword }) => password === confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  })
+import { signUpFormSchema } from "./validation"
 
 export function SignUpForm() {
-  const { toast } = useToast()
-
   const form = useForm<z.infer<typeof signUpFormSchema>>({
     resolver: zodResolver(signUpFormSchema),
     defaultValues: {
@@ -46,18 +35,15 @@ export function SignUpForm() {
     },
   })
 
-  const { execute, isPending, error } = useServerAction(signUpAction, {
-    onError({ err }) {
-      toast({
-        title: "Something went wrong",
-        description: err.message,
-        variant: "destructive",
+  const { execute, result, isPending, hasErrored } = useAction(signUpAction, {
+    onError({ error }) {
+      toast.error("Something went wrong", {
+        description: error.serverError,
       })
     },
     onSuccess() {
       // store email in localstorage
-      toast({
-        title: "Let's Go!",
+      toast.success("Let's Go!", {
         description: "Enjoy your session",
       })
     },
@@ -70,11 +56,11 @@ export function SignUpForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        {error && (
+        {hasErrored && (
           <Alert variant="destructive">
             <Terminal className="h-4 w-4" />
             <AlertTitle>Uhoh, we couldn&apos;t sign you up</AlertTitle>
-            <AlertDescription>{error.message}</AlertDescription>
+            <AlertDescription>{result.serverError}</AlertDescription>
           </Alert>
         )}
 
@@ -133,6 +119,11 @@ export function SignUpForm() {
               <FormMessage />
             </FormItem>
           )}
+        />
+
+        <Captcha
+          onSuccess={(token) => form.setValue("captchaToken", token)}
+          validationerror={form.formState.errors.captchaToken?.message}
         />
 
         <div className="pt-2">

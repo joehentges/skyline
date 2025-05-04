@@ -126,10 +126,6 @@ export async function deleteCacheSession(
   await redis.del(getSessionKey(userId, sessionId))
 }
 
-interface ListResult {
-  keys: { name: string; expiration?: number; metadata?: object }[]
-}
-
 export async function getAllSessionIdsOfUser(userId: string) {
   const keys = await redis.keys(`${getSessionKey(userId, "")}`)
 

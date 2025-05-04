@@ -15,12 +15,12 @@ export async function validateTurnstileToken(token: string) {
     {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         secret: env.CLOUDFLARE_TURNSTILE_SECRET_KEY,
-        response: token
-      })
+        response: token,
+      }),
     }
   )
 

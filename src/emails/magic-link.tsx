@@ -39,13 +39,13 @@ export function MagicLinkEmail({
                 </Text>
               </Section>
 
-              <Section className="mb-[32px] mt-[32px] text-center">
-                <Text className="mb-8 text-[14px] font-medium leading-[24px] text-black">
+              <Section className="mt-[32px] mb-[32px] text-center">
+                <Text className="mb-8 text-[14px] leading-[24px] font-medium text-black">
                   You&apos;re magic link login is below, click to sign in.
                   group.
                 </Text>
 
-                <Text className="text-[14px] font-medium leading-[24px] text-black">
+                <Text className="text-[14px] leading-[24px] font-medium text-black">
                   <Link
                     href={magicLinkHref}
                     target="_blank"

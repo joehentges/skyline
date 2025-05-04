@@ -33,12 +33,12 @@ export function ResetPasswordEmail({ token }: { token: string }) {
                 </Text>
               </Section>
 
-              <Section className="mb-[32px] mt-[32px] text-center">
-                <Text className="mb-8 text-[14px] font-medium leading-[24px] text-black">
+              <Section className="mt-[32px] mb-[32px] text-center">
+                <Text className="mb-8 text-[14px] leading-[24px] font-medium text-black">
                   Click the following link to reset your password
                 </Text>
 
-                <Text className="text-[14px] font-medium leading-[24px] text-black">
+                <Text className="text-[14px] leading-[24px] font-medium text-black">
                   <Link
                     href={resetPasswordHref}
                     target="_blank"

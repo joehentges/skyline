@@ -15,7 +15,7 @@ export default async function SecureLayout(props: SecureLayoutProps) {
         <p>header</p>
       </header>
 
-      <main className="flex-grow">{children}</main>
+      <main className="grow">{children}</main>
 
       <footer>
         <Footer />

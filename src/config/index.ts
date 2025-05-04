@@ -1,8 +1,10 @@
 // Auth
-export const TOKEN_LENGTH = 32
-export const TOKEN_TTL = 1000 * 60 * 5 // 5 min
-export const VERIFY_EMAIL_TTL = 1000 * 60 * 60 * 24 * 7 // 7 days
+export const EMAIL_TTL = 1000 * 60 * 60 * 24 // 24 hours
 
-export const afterSignInUrl = "/home"
+export const afterSignInUrl = "/dashboard"
 export const signInUrl = "/sign-in"
-export const forgotPasswordUrl = "/forgot-password"
+
+// Error Messages
+export const VALIDATION_ERROR_MESSAGE =
+  "An error occurred validating your input."
+export const DATABASE_ERROR_MESSAGE = "An error occurred with our database."

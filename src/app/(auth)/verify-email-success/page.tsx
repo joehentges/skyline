@@ -21,7 +21,7 @@ export default async function VerifyEmailSuccessPage() {
         <p className="text-center text-base">
           Your email has been successfully verified
         </p>
-        <Link href={user ? afterSignInUrl : "Sign In"} className="w-full">
+        <Link href={user ? afterSignInUrl : "/sign-in"} className="w-full">
           <Button className="w-full">{user ? "Continue" : "Sign In"}</Button>
         </Link>
       </div>

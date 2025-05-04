@@ -2,29 +2,21 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { afterSignInUrl } from "@/config"
-import { pathIsUrl } from "@/lib/path-is-url"
 import { getCurrentUser } from "@/lib/session"
 import { MagicLinkForm } from "@/containers/magic-link-form"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
+  TooltipTrigger
 } from "@/components/ui/tooltip"
 
-interface MagicLinkPageProps {
-  searchParams: Promise<{ from?: string }>
-}
-
-export default async function MagicLinkPage(props: MagicLinkPageProps) {
+export default async function MagicLinkPage() {
   const user = await getCurrentUser()
 
   if (user) {
     redirect(afterSignInUrl)
   }
-
-  const { from } = await props.searchParams
-  const fromIsNotUrl = !pathIsUrl(from || "")
 
   return (
     <div className="flex h-full flex-col justify-between space-y-8 px-4 py-8">
@@ -53,7 +45,7 @@ export default async function MagicLinkPage(props: MagicLinkPageProps) {
             to your email to sign in
           </p>
         </div>
-        <MagicLinkForm from={fromIsNotUrl ? from : undefined} />
+        <MagicLinkForm />
       </div>
       <div>
         <p className="text-center">

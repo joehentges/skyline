@@ -1,21 +1,24 @@
 "use server"
 
 import { cache } from "react"
-import { cookies as nextCookies, headers as nextHeaders } from "next/headers"
+import { cookies as nextCookies } from "next/headers"
 import { redirect } from "next/navigation"
+import { CreateCacheSessionParams } from "@/cache-session"
 
 import { signInUrl } from "@/config"
 import { User } from "@/db/schemas"
 import {
   createSession,
+  deleteSessionTokenCookie,
   generateSessionToken,
   invalidateSession,
+  setSessionTokenCookie,
   validateRequest,
 } from "@/auth"
 
 export const getCurrentUser = cache(async () => {
   const session = await validateRequest()
-  if (!session.user) {
+  if (!session || !session.user) {
     return undefined
   }
   return session.user
@@ -24,36 +27,25 @@ export const getCurrentUser = cache(async () => {
 export const assertAuthenticated = async () => {
   const user = await getCurrentUser()
   if (!user) {
-    const headers = await nextHeaders()
-    const from = headers.get("x-from")
-    redirect(`${signInUrl}?from=${from}`)
+    redirect(signInUrl)
   }
   return user
 }
 
-export async function setSession(userId: User["id"]) {
+export async function setSession(
+  userId: User["id"],
+  authenticationType?: CreateCacheSessionParams["authenticationType"]
+) {
   const sessionToken = generateSessionToken()
-  const session = await createSession(sessionToken, userId)
-  const cookies = await nextCookies()
-  cookies.set("session", sessionToken, {
-    httpOnly: true,
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    expires: session.expiresAt,
-  })
+  const session = await createSession(sessionToken, userId, authenticationType)
+  await setSessionTokenCookie(sessionToken, userId, new Date(session.expiresAt))
 }
 
-export async function clearSession() {
+export async function clearSession(userId: User["id"]) {
   const cookies = await nextCookies()
   const sessionId = cookies.get("session")?.value ?? null
   if (sessionId) {
-    await invalidateSession(sessionId)
+    await invalidateSession(sessionId, userId)
   }
-  cookies.set("session", "", {
-    httpOnly: true,
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  })
+  await deleteSessionTokenCookie()
 }

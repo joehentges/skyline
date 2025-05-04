@@ -3,24 +3,16 @@ import { redirect } from "next/navigation"
 import { WandSparkles } from "lucide-react"
 
 import { afterSignInUrl } from "@/config"
-import { pathIsUrl } from "@/lib/path-is-url"
 import { getCurrentUser } from "@/lib/session"
 import { SignInForm } from "@/containers/sign-in-form"
 import { Button } from "@/components/ui/button"
 
-interface SignInPageProps {
-  searchParams: Promise<{ from?: string }>
-}
-
-export default async function SignInPage(props: SignInPageProps) {
+export default async function SignInPage() {
   const user = await getCurrentUser()
 
   if (user) {
     redirect(afterSignInUrl)
   }
-
-  const { from } = await props.searchParams
-  const fromIsNotUrl = !pathIsUrl(from || "")
 
   return (
     <div className="flex h-full flex-col justify-between space-y-8 px-4 py-8">
@@ -38,7 +30,7 @@ export default async function SignInPage(props: SignInPageProps) {
             Enter your email and password to access your account
           </p>
         </div>
-        <SignInForm from={fromIsNotUrl ? from : undefined} />
+        <SignInForm />
       </div>
 
       <div className="relative">
@@ -46,13 +38,13 @@ export default async function SignInPage(props: SignInPageProps) {
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
+          <span className="bg-background text-muted-foreground px-2">
             Or continue with
           </span>
         </div>
       </div>
       <div className="flex flex-col space-y-4">
-        <Link href={`/sign-in/magic${fromIsNotUrl ? `?from=${from}` : ""}`}>
+        <Link href="/sign-in/magic">
           <Button variant="outline" className="w-full" type="submit" size="sm">
             <WandSparkles className="mr-2 h-4 w-4" /> Magic Link
           </Button>

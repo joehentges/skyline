@@ -6,8 +6,118 @@ import {
 } from "@oslojs/encoding"
 import { eq } from "drizzle-orm"
 
-import { database } from "@/db"
-import { Session, sessions, User, users } from "@/db/schemas"
+import { User, usersTable } from "@/db/schemas"
+
+import {
+  CacheSession,
+  createCacheSession,
+  CreateCacheSessionParams,
+  deleteCacheSession,
+  getSessionKey,
+  updateCacheSession,
+} from "./cache-session"
+import { redis } from "./client/redis"
+import { database } from "./db"
+
+export function getUserFromDatabase(userId: User["id"]) {
+  return database.query.usersTable.findFirst({
+    where: eq(usersTable.id, userId),
+    columns: {
+      id: true,
+      dateCreated: true,
+      dateUpdated: true,
+      displayName: true,
+      email: true,
+      role: true,
+      emailVerified: true,
+      avatar: true,
+    },
+  })
+}
+
+export async function createSession(
+  token: string,
+  userId: User["id"],
+  authenticationType?: CreateCacheSessionParams["authenticationType"],
+  passkeyCredentialId?: CreateCacheSessionParams["passkeyCredentialId"]
+): Promise<CacheSession> {
+  const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
+
+  const user = await getUserFromDatabase(userId)
+
+  if (!user) {
+    throw new Error("User not found")
+  }
+
+  return createCacheSession({
+    sessionId,
+    userId,
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+    user,
+    authenticationType,
+    passkeyCredentialId,
+  })
+}
+
+async function validateSessionToken(
+  token: string,
+  userId: User["id"]
+): Promise<SessionValidationResult | null> {
+  const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
+
+  const sessionStr = await redis.get(getSessionKey(userId, sessionId))
+  if (!sessionStr) {
+    return null
+  }
+
+  const session = JSON.parse(sessionStr) as CacheSession
+
+  if (Date.now() >= session.expiresAt) {
+    await deleteCacheSession(sessionId, userId)
+    return null
+  }
+
+  if (Date.now() >= session.expiresAt - 1000 * 60 * 60 * 24 * 15) {
+    await updateCacheSession(
+      sessionId,
+      userId,
+      new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
+    )
+  }
+
+  return session
+}
+
+export async function invalidateSession(
+  sessionId: string,
+  userId: User["id"]
+): Promise<void> {
+  await deleteCacheSession(sessionId, userId)
+}
+
+function encodeSessionCookie(userId: string, token: string): string {
+  return `${userId}:${token}`
+}
+
+export async function setSessionTokenCookie(
+  token: string,
+  userId: User["id"],
+  expiresAt: Date
+): Promise<void> {
+  const cookies = await nextCookies()
+  cookies.set("session", encodeSessionCookie(userId, token), {
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    secure: process.env.NODE_ENV === "production",
+    expires: expiresAt,
+    path: "/",
+  })
+}
+
+export async function deleteSessionTokenCookie(): Promise<void> {
+  const cookies = await nextCookies()
+  cookies.delete("session")
+}
 
 export function generateSessionToken(): string {
   const bytes = new Uint8Array(20)
@@ -16,92 +126,30 @@ export function generateSessionToken(): string {
   return token
 }
 
-export async function createSession(
-  token: string,
-  userId: number
-): Promise<Session> {
-  const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
-  const session: Session = {
-    id: sessionId,
-    userId,
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-  }
-  await database.insert(sessions).values(session)
-  return session
+function decodeSessionCookie(
+  cookie: string
+): { userId: string; token: string } | null {
+  const parts = cookie.split(":")
+  if (parts.length !== 2) return null
+  return { userId: parts[0], token: parts[1] }
 }
 
-export async function validateSessionToken(
-  token: string
-): Promise<SessionValidationResult> {
-  const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
-  const result = await database
-    .select({ user: users, session: sessions })
-    .from(sessions)
-    .innerJoin(users, eq(sessions.userId, users.id))
-    .where(eq(sessions.id, sessionId))
-  if (result.length < 1) {
-    return { session: null, user: null }
-  }
-  const { user, session } = result[0]
-  if (Date.now() >= session.expiresAt.getTime()) {
-    await database.delete(sessions).where(eq(sessions.id, session.id))
-    return { session: null, user: null }
-  }
-  if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
-    session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
-    await database
-      .update(sessions)
-      .set({
-        expiresAt: session.expiresAt,
-      })
-      .where(eq(sessions.id, session.id))
-  }
-  return { session, user }
-}
-
-export async function invalidateSession(sessionId: string): Promise<void> {
-  await database.delete(sessions).where(eq(sessions.id, sessionId))
-}
-
-export async function validateRequest(): Promise<
-  { user: User; session: Session } | { user: null; session: null }
-> {
+export async function validateRequest(): Promise<SessionValidationResult | null> {
   const cookies = await nextCookies()
-  const sessionId = cookies.get("session")?.value ?? null
-  if (!sessionId) {
-    return {
-      user: null,
-      session: null,
-    }
+  const sessionCookie = cookies.get("session")?.value ?? null
+  if (!sessionCookie) {
+    return null
   }
 
-  const result = await validateSessionToken(sessionId)
+  const decoded = decodeSessionCookie(sessionCookie)
 
-  // next.js throws when you attempt to set cookie when rendering page
-  try {
-    if (result.session) {
-      const sessionToken = generateSessionToken()
-      const session = await createSession(sessionToken, result.user.id)
-      cookies.set("session", sessionToken, {
-        httpOnly: true,
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        expires: session.expiresAt,
-      })
-    }
-    if (!result.session) {
-      cookies.set("session", "", {
-        httpOnly: true,
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-      })
-    }
-  } catch {}
+  if (!decoded || !decoded.token || !decoded.userId) {
+    return null
+  }
+
+  const result = await validateSessionToken(decoded.token, decoded.userId)
+
   return result
 }
 
-export type SessionValidationResult =
-  | { session: Session; user: User }
-  | { session: null; user: null }
+export type SessionValidationResult = CacheSession | null

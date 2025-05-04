@@ -1,50 +1,54 @@
-import { createServerActionProcedure } from "zsa"
+import { DrizzleError } from "drizzle-orm"
+import {
+  createSafeActionClient,
+  DEFAULT_SERVER_ERROR_MESSAGE,
+} from "next-safe-action"
+import { ZodError } from "zod"
 
-import { env } from "@/env"
-import { CustomError } from "@/errors"
+import { DATABASE_ERROR_MESSAGE, VALIDATION_ERROR_MESSAGE } from "@/config"
 import { rateLimitByKey } from "@/lib/limiter"
 
 import { assertAuthenticated } from "./session"
 
-// eslint-disable-next-line  @typescript-eslint/no-explicit-any
-function shapeErrors({ err }: any) {
-  const isAllowedError = err instanceof CustomError
-  // let's all errors pass through to the UI so debugging locally is easier
-  const isDev = env.NODE_ENV === "development"
-  if (isAllowedError || isDev) {
-    console.error(err)
-    return {
-      code: err.code ?? "ERROR",
-      message: `${!isAllowedError && isDev ? "DEV ONLY ENABLED - " : ""}${
-        err.message
-      }`,
+const actionClientWithMeta = createSafeActionClient({
+  handleServerError(e) {
+    if (e instanceof ZodError) {
+      console.error(e.message)
+      return VALIDATION_ERROR_MESSAGE
+    } else if (e instanceof DrizzleError) {
+      console.error(e.message)
+      return DATABASE_ERROR_MESSAGE
+    } else if (e instanceof Error) {
+      return e.message
     }
-  } else {
-    return {
-      code: "ERROR",
-      message: "Something went wrong",
-    }
-  }
-}
 
-export const authenticatedAction = createServerActionProcedure()
-  .experimental_shapeError(shapeErrors)
-  .handler(async () => {
+    return DEFAULT_SERVER_ERROR_MESSAGE
+  },
+})
+
+export const authenticatedAction = actionClientWithMeta.use(
+  async ({ next }) => {
     const user = await assertAuthenticated()
     await rateLimitByKey({
       key: `${user.id}-global`,
       limit: 10,
       window: 10000,
     })
-    return { user }
-  })
+    return next({
+      ctx: {
+        user,
+      },
+    })
+  }
+)
 
-export const unauthenticatedAction = createServerActionProcedure()
-  .experimental_shapeError(shapeErrors)
-  .handler(async () => {
+export const unauthenticatedAction = actionClientWithMeta.use(
+  async ({ next }) => {
     await rateLimitByKey({
       key: `unauthenticated-global`,
       limit: 10,
       window: 10000,
     })
-  })
+    return next()
+  }
+)

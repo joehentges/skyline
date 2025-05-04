@@ -1,7 +1,8 @@
 import Link from "next/link"
-import { redirect } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 
-import { afterSignInUrl, forgotPasswordUrl } from "@/config"
+import { afterSignInUrl } from "@/config"
+import { redis } from "@/client/redis"
 import { getCurrentUser } from "@/lib/session"
 import { ResetPasswordForm } from "@/containers/reset-password-form"
 
@@ -19,7 +20,13 @@ export default async function ResetPasswordPage(props: ResetPasswordPageProps) {
   const { token } = await props.searchParams
 
   if (!token) {
-    redirect(forgotPasswordUrl)
+    return notFound()
+  }
+
+  const resetTokenStr = await redis.get(`password-reset:${token}`)
+
+  if (!resetTokenStr) {
+    return notFound()
   }
 
   return (

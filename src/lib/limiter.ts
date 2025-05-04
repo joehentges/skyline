@@ -1,4 +1,3 @@
-import { RateLimitError } from "@/errors"
 import { redis } from "@/client/redis"
 
 import { getIp } from "./get-ip"
@@ -20,7 +19,7 @@ export async function rateLimitByIp({
   const ip = await getIp()
 
   if (!ip) {
-    throw new RateLimitError()
+    throw new Error("Rate limit exceeded")
   }
 
   await rateLimitByKey({
@@ -54,7 +53,7 @@ export async function rateLimitByKey({
   tracker.count += 1
 
   if (tracker.count > limit) {
-    throw new RateLimitError()
+    throw new Error("Rate limit exceeded")
   }
 
   await redis.set(key, JSON.stringify(tracker), "EX", window)

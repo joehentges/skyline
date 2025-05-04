@@ -1,17 +1,22 @@
-import { headers as nextHeaders } from "next/headers"
+import "server-only"
+
+import { headers } from "next/headers"
 
 export async function getIp() {
-  const headers = await nextHeaders()
-  const forwardedFor = headers.get("x-forwarded-for")
-  const realIp = headers.get("x-real-ip")
+  const headersList = await headers()
 
-  if (forwardedFor) {
-    return forwardedFor.split(",")[0].trim()
+  const ip =
+    headersList.get("cf-connecting-ip") ||
+    headersList.get("x-forwarded-for") ||
+    headersList.get("x-real-ip") ||
+    headersList.get("true-client-ip") ||
+    headersList.get("x-client-ip") ||
+    headersList.get("x-cluster-client-ip") ||
+    null
+
+  if (!ip) {
+    return null
   }
 
-  if (realIp) {
-    return realIp.trim()
-  }
-
-  return null
+  return ip
 }

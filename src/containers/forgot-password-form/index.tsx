@@ -2,9 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Terminal } from "lucide-react"
+import { useAction } from "next-safe-action/hooks"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
-import { useServerAction } from "zsa-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
@@ -17,17 +18,11 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { LoaderButton } from "@/components/loader-button"
-import { useToast } from "@/hooks/use-toast"
 
 import { sendForgotPasswordAction } from "./actions"
-
-const forgotPasswordFormSchema = z.object({
-  email: z.string().email(),
-})
+import { forgotPasswordFormSchema } from "./validation"
 
 export function ForgotPasswordForm() {
-  const { toast } = useToast()
-
   const form = useForm<z.infer<typeof forgotPasswordFormSchema>>({
     resolver: zodResolver(forgotPasswordFormSchema),
     defaultValues: {
@@ -35,22 +30,19 @@ export function ForgotPasswordForm() {
     },
   })
 
-  const { execute, isPending, error } = useServerAction(
+  const { execute, isPending, result, hasErrored } = useAction(
     sendForgotPasswordAction,
     {
-      onError({ err }) {
-        toast({
-          title: "Something went wrong",
-          description: err.message,
-          variant: "destructive",
+      onError({ error }) {
+        toast.error("Something went wrong", {
+          description: error.serverError,
         })
       },
       onSuccess() {
         const email = form.getValues("email")
         form.reset()
         // store email in localstorage
-        toast({
-          title: "Email sent!",
+        toast.success("Email sent!", {
           description: `Your password reset link has been sent to ${email}`,
         })
       },
@@ -64,11 +56,11 @@ export function ForgotPasswordForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        {error && (
+        {hasErrored && (
           <Alert variant="destructive">
             <Terminal className="h-4 w-4" />
             <AlertTitle>Uhoh, we couldn&apos;t send your reset link</AlertTitle>
-            <AlertDescription>{error.message}</AlertDescription>
+            <AlertDescription>{result.serverError}</AlertDescription>
           </Alert>
         )}
 

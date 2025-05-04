@@ -3,10 +3,10 @@ import Link from "next/link"
 import { secureNav } from "@/config/secure-nav"
 import { siteConfig } from "@/config/site"
 
-export function SecureFooter() {
+export function Footer() {
   return (
     <div className="border-t py-4">
-      <div className="container flex flex-col items-center justify-between gap-y-2 text-sm text-muted-foreground md:flex-row">
+      <div className="text-muted-foreground container flex flex-col justify-between gap-y-2 place-self-center self-center text-sm md:flex-row">
         <div>
           <p>© 2025 {siteConfig.name}</p>
         </div>
@@ -16,7 +16,7 @@ export function SecureFooter() {
             <Link
               key={link.label}
               href={link.href}
-              className="transition-colors hover:text-foreground"
+              className="hover:text-foreground transition-colors"
             >
               {link.label}
             </Link>

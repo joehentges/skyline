@@ -1,11 +1,13 @@
 import * as React from "react"
-import { Resend } from "resend"
+import { MagicLinkEmail } from "@/emails/magic-link"
+import { ResetPasswordEmail } from "@/emails/reset-password"
+import { VerifyEmail } from "@/emails/verify-email"
 
 import { env } from "@/env"
+import { siteConfig } from "@/config/site"
+import { resend } from "@/client/resend"
 
-const resend = new Resend(env.RESEND_API_KEY)
-
-export async function sendEmail(
+async function sendEmail(
   email: string,
   subject: string,
   body: React.ReactNode
@@ -22,23 +24,26 @@ export async function sendEmail(
   }
 }
 
-// TODO: implement me
-// export async function batchSendEmails(
-//   emails: {
-//     to: string;
-//     subject: string;
-//     body: ReactNode;
-//   }[]
-// ) {
-//   const { error } = await resend.batch.send(
-//     emails.map((email) => ({
-//       from: EMAIL_FROM,
-//       to: email.to,
-//       subject: email.subject,
-//       react: email.body,
-//     })
-//   );
-//   if (error) {
-//     throw error;
-//   }
-// }
+export async function sendVerifyEmail(email: string, token: string) {
+  await sendEmail(
+    email,
+    `Verify your email for ${siteConfig.name}`,
+    <VerifyEmail token={token} />
+  )
+}
+
+export async function sendResetPasswordEmail(email: string, token: string) {
+  await sendEmail(
+    email,
+    `Your password reset link for ${siteConfig.name}`,
+    <ResetPasswordEmail token={token} />
+  )
+}
+
+export async function sendMagicLinkEmail(email: string, token: string) {
+  await sendEmail(
+    email,
+    `Your magic link link for ${siteConfig.name}`,
+    <MagicLinkEmail token={token} />
+  )
+}

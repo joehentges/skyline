@@ -53,9 +53,6 @@ export async function createCacheSession({
     userId,
     expiresAt: expiresAt.getTime(),
     createdAt: Date.now(),
-    country: "unknown", // todo
-    city: "unknown", // todo
-    continent: "unknown", // todo
     ip: await getIp(),
     userAgent: headersList.get("user-agent"),
     user,
@@ -126,15 +123,20 @@ export async function deleteCacheSession(
   await redis.del(getSessionKey(userId, sessionId))
 }
 
-export async function getAllSessionIdsOfUser(userId: string) {
-  const keys = await redis.keys(`${getSessionKey(userId, "")}`)
+export async function getAllSessionsOfUser(userId: string) {
+  const keys = await redis.keys(`${getSessionKey(userId, "")}*`)
 
   const sessions = []
   for (const key of keys) {
     const ttl = await redis.ttl(key)
+    const session = await redis.get(key)
+
+    if (!ttl || !session) continue
+
     sessions.push({
       key,
-      absoluteExpiration: ttl ? new Date(ttl * 1000) : undefined,
+      absoluteExpiration: ttl ? new Date(Date.now() + ttl * 1000) : undefined,
+      session: JSON.parse(session) as CacheSession,
     })
   }
 
@@ -146,7 +148,7 @@ export async function getAllSessionIdsOfUser(userId: string) {
  * @param userId
  */
 export async function updateAllSessionsOfUser(userId: string) {
-  const sessions = await getAllSessionIdsOfUser(userId)
+  const sessions = await getAllSessionsOfUser(userId)
   const newUserData = await getUserFromDatabase(userId)
 
   if (!newUserData) return

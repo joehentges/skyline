@@ -52,7 +52,7 @@ export async function createSession(
   return createCacheSession({
     sessionId,
     userId,
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
     user,
     authenticationType,
     passkeyCredentialId,

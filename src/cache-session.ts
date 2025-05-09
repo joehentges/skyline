@@ -29,7 +29,7 @@ export interface CacheSession {
   continent?: string
   ip?: string | null
   userAgent?: string | null
-  authenticationType?: "passkey" | "password" | "google-oauth"
+  authenticationType?: "password" | "magic-link"
   passkeyCredentialId?: string
 }
 

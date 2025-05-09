@@ -1,29 +1,26 @@
 "use server"
 
 import { redirect } from "next/navigation"
-import { createId } from "@paralleldrive/cuid2"
-import argon2 from "argon2"
 import { eq } from "drizzle-orm"
 
 import { env } from "@/env"
-import { afterSignInUrl, EMAIL_TTL } from "@/config"
+import { afterSignInUrl } from "@/config"
 import { database } from "@/db"
 import { usersTable } from "@/db/schemas"
 import { redis } from "@/client/redis"
 import { getIp } from "@/lib/get-ip"
 import { rateLimitByKey } from "@/lib/limiter"
 import { unauthenticatedAction } from "@/lib/safe-action"
-import { sendVerifyEmail } from "@/lib/send-email"
 import { setSession } from "@/lib/session"
 import { validateTurnstileToken } from "@/lib/validate-turnstile-token"
 
-import { signUpFormSchema } from "./validation"
+import { magicLinkSignUpFormSchema } from "./validation"
 
-export const signUpAction = unauthenticatedAction
-  .schema(signUpFormSchema)
+export const magicLinkSignUpAction = unauthenticatedAction
+  .schema(magicLinkSignUpFormSchema)
   .action(async ({ parsedInput }) => {
     await rateLimitByKey({
-      key: `${parsedInput.email}-sign-up`,
+      key: `${parsedInput.token}-sign-up`,
       limit: 3,
       window: 10000,
     })
@@ -39,42 +36,46 @@ export const signUpAction = unauthenticatedAction
       }
     }
 
+    const magicSignInInfoStr = await redis.get(
+      `magic-sign-in:${parsedInput.token}`
+    )
+
+    if (!magicSignInInfoStr) {
+      throw new Error("Invalid token")
+    }
+
+    const magicSignInInfo = JSON.parse(magicSignInInfoStr) as {
+      email: string
+      expiresAt: string
+    }
+
+    // Check if token is expired (although redis should have auto-deleted it)
+    if (new Date() > new Date(magicSignInInfo.expiresAt)) {
+      throw new Error("Token has expired")
+    }
+
     const [existingUser] = await database
       .select({ id: usersTable.id })
       .from(usersTable)
-      .where(eq(usersTable.email, parsedInput.email))
+      .where(eq(usersTable.email, magicSignInInfo.email))
 
     if (existingUser) {
       throw new Error("Email is already in use")
     }
 
-    const passwordHash = await argon2.hash(parsedInput.password)
     const [user] = await database
       .insert(usersTable)
       .values({
-        email: parsedInput.email,
-        passwordHash,
+        email: magicSignInInfo.email,
+        emailVerified: new Date(),
         signUpIpAddress: await getIp(),
         displayName: parsedInput.displayName,
       })
       .returning()
 
-    const verificationToken = createId()
-    const expiresAt = new Date(Date.now() + EMAIL_TTL)
+    await redis.del(`magic-sign-in:${parsedInput.token}`)
 
-    await redis.set(
-      `email-verification:${verificationToken}`,
-      JSON.stringify({
-        userId: user.id,
-        expiresAt: expiresAt.toISOString(),
-      }),
-      "EX",
-      Math.floor((expiresAt.getTime() - Date.now()) / 1000)
-    )
-
-    await sendVerifyEmail(user.email, verificationToken)
-
-    await setSession(user.id, "password")
+    await setSession(user.id, "magic-link")
 
     redirect(afterSignInUrl)
   })

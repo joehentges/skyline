@@ -1,7 +1,5 @@
 import "dotenv/config"
 
-import { animals, colors, uniqueNamesGenerator } from "unique-names-generator"
-
 import { database, pg } from "./index"
 import { usersTable } from "./schemas"
 
@@ -14,11 +12,7 @@ async function main() {
       // password = 'password'
       passwordHash:
         "$argon2id$v=19$m=19456,t=2,p=1$i1xOrGnKrUIUfy0Mw2JFpQ$THIIWncQ9A3ASymUMSP4ziumdOAe3vIEdt3ZP8YF6a4",
-      displayName: uniqueNamesGenerator({
-        dictionaries: [colors, animals],
-        separator: " ",
-        style: "capital",
-      }),
+      displayName: "Seed Account",
     })
     .onConflictDoNothing()
     .returning()

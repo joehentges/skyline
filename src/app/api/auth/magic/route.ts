@@ -1,11 +1,9 @@
 import { eq } from "drizzle-orm"
-import { animals, colors, uniqueNamesGenerator } from "unique-names-generator"
 
 import { afterSignInUrl } from "@/config"
 import { database } from "@/db"
 import { usersTable } from "@/db/schemas"
 import { redis } from "@/client/redis"
-import { getIp } from "@/lib/get-ip"
 import { rateLimitByIp } from "@/lib/limiter"
 import { setSession } from "@/lib/session"
 
@@ -37,7 +35,7 @@ export async function GET(request: Request): Promise<Response> {
       expiresAt: string
     }
 
-    // Check if token is expired (although KV should have auto-deleted it)
+    // Check if token is expired (although redis should have auto-deleted it)
     if (new Date() > new Date(magicSignInInfo.expiresAt)) {
       throw new Error("Token has expired")
     }
@@ -46,31 +44,24 @@ export async function GET(request: Request): Promise<Response> {
       where: eq(usersTable.email, magicSignInInfo.email),
     })
 
-    if (existingUser) {
-      const [user] = await database
-        .update(usersTable)
-        .set({
-          emailVerified: new Date(),
-        })
-        .where(eq(usersTable.id, existingUser.email))
-        .returning()
-      await setSession(user.id)
-    } else {
-      const [newUser] = await database
-        .insert(usersTable)
-        .values({
-          email: magicSignInInfo.email,
-          emailVerified: new Date(),
-          signUpIpAddress: await getIp(),
-          displayName: uniqueNamesGenerator({
-            dictionaries: [colors, animals],
-            separator: " ",
-            style: "capital",
-          }),
-        })
-        .returning()
-      await setSession(newUser.id)
+    if (!existingUser) {
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: `/sign-in/magic/sign-up?token=${token}`,
+        },
+      })
     }
+
+    const [user] = await database
+      .update(usersTable)
+      .set({
+        emailVerified: new Date(),
+      })
+      .where(eq(usersTable.id, existingUser.email))
+      .returning()
+
+    await setSession(user.id, "magic-link")
 
     await redis.del(`magic-sign-in:${token}`)
 

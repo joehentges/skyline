@@ -1,6 +1,6 @@
-# Next.js Monolithic Boilerplate
+# Skyline - A Next.js Monolithic Boilerplate
 
-## Getting Started
+#### Getting Started
 
 First, create and modify your `.env` file. Note: the `.env.exmaple` file. _Note, `DATABASE_URL` and `REDIS_URL` point to local docker containers._
 
@@ -49,7 +49,7 @@ npm run db:studio
 
 Open the app at [https://local.drizzle.studio/](https://local.drizzle.studio/)
 
-### Theme
+#### Theme
 
 To change the theme / colors, open the `src/styles/globals.css` file and update the `:root` and `.dark` sections.
 

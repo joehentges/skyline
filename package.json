@@ -1,5 +1,6 @@
 {
-  "name": "monolithic",
+  "name": "skyline",
+  "description": "A Next.js monolithic boilerplate. Quickly get started on your next project.",
   "version": "0.1.0",
   "private": true,
   "scripts": {

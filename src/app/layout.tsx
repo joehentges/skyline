@@ -6,7 +6,6 @@ import "@/styles/globals.css"
 import { siteConfig } from "@/config/site"
 import { Providers } from "@/providers"
 import { cn } from "@/lib/utils"
-import { Toaster } from "@/components/ui/sonner"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 
 const fontBase = Inter({
@@ -75,7 +74,6 @@ export default function RootLayout({
         <Providers>
           {children}
           <TailwindIndicator />
-          <Toaster />
         </Providers>
       </body>
     </html>

@@ -34,7 +34,7 @@ npm run dev
 
 Open the app at [http://localhost:3000](http://localhost:3000)
 
-Two users are initially seeded with the `npm run db:seed` command. Modify the `src\db\seed\users.ts` file to change them.
+One user is initially seeded with the `npm run db:seed` command. Modify the `src\db\seed\users.ts` file to change it or add more.
 
 ```bash
 email: testing@example.com

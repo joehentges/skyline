@@ -2,7 +2,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { WandSparkles } from "lucide-react"
 
-import { afterSignInUrl } from "@/config"
+import { AFTER_SIGN_IN_URL } from "@/config"
 import { getCurrentUser } from "@/lib/session"
 import { SignInForm } from "@/containers/sign-in-form"
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,7 @@ export default async function SignInPage() {
   const user = await getCurrentUser()
 
   if (user) {
-    redirect(afterSignInUrl)
+    redirect(AFTER_SIGN_IN_URL)
   }
 
   return (

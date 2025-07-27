@@ -1,20 +1,32 @@
 import "dotenv/config"
 
+import argon2 from "argon2"
+
+import { stripe } from "@/client/stripe"
+
 import { database, pg } from "./index"
 import { usersTable } from "./schemas"
 
 async function main() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [user] = await database
+  // create stripe seed user
+  const stripeCustomer = await stripe.customers.create({
+    email: "delivered@resend.dev",
+    name: "Seed Account",
+    metadata: {
+      signUpIpAddress: null,
+    },
+  })
+
+  const passwordHash = await argon2.hash("password")
+  await database
     .insert(usersTable)
     .values({
-      email: "testing@example.com",
-      // password = 'password'
-      passwordHash:
-        "$argon2id$v=19$m=19456,t=2,p=1$i1xOrGnKrUIUfy0Mw2JFpQ$THIIWncQ9A3ASymUMSP4ziumdOAe3vIEdt3ZP8YF6a4",
+      email: "delivered@resend.dev",
+      passwordHash,
+      signUpIpAddress: null,
       displayName: "Seed Account",
+      stripeCustomerId: stripeCustomer.id,
     })
-    .onConflictDoNothing()
     .returning()
 
   await pg.end()

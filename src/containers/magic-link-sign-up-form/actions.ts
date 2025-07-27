@@ -4,10 +4,11 @@ import { redirect } from "next/navigation"
 import { eq } from "drizzle-orm"
 
 import { env } from "@/env"
-import { afterSignInUrl } from "@/config"
+import { AFTER_SIGN_IN_URL } from "@/config"
 import { database } from "@/db"
 import { usersTable } from "@/db/schemas"
 import { redis } from "@/client/redis"
+import { stripe } from "@/client/stripe"
 import { getIp } from "@/lib/get-ip"
 import { rateLimitByKey } from "@/lib/limiter"
 import { unauthenticatedAction } from "@/lib/safe-action"
@@ -63,13 +64,24 @@ export const magicLinkSignUpAction = unauthenticatedAction
       throw new Error("Email is already in use")
     }
 
+    const signUpIpAddress = await getIp()
+
+    const stripeCustomer = await stripe.customers.create({
+      email: magicSignInInfo.email,
+      name: parsedInput.displayName,
+      metadata: {
+        signUpIpAddress,
+      },
+    })
+
     const [user] = await database
       .insert(usersTable)
       .values({
         email: magicSignInInfo.email,
         emailVerified: new Date(),
-        signUpIpAddress: await getIp(),
+        signUpIpAddress,
         displayName: parsedInput.displayName,
+        stripeCustomerId: stripeCustomer.id,
       })
       .returning()
 
@@ -77,5 +89,5 @@ export const magicLinkSignUpAction = unauthenticatedAction
 
     await setSession(user.id, "magic-link")
 
-    redirect(afterSignInUrl)
+    redirect(AFTER_SIGN_IN_URL)
   })

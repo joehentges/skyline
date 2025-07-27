@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm"
 
-import { afterSignInUrl } from "@/config"
+import { AFTER_SIGN_IN_URL, REDIS_PREFIX, SIGN_IN_URL } from "@/config"
 import { database } from "@/db"
 import { usersTable } from "@/db/schemas"
 import { redis } from "@/client/redis"
@@ -19,12 +19,14 @@ export async function GET(request: Request): Promise<Response> {
       return new Response(null, {
         status: 302,
         headers: {
-          Location: "/sign-in",
+          Location: SIGN_IN_URL,
         },
       })
     }
 
-    const magicSignInInfoStr = await redis.get(`magic-sign-in:${token}`)
+    const magicSignInInfoStr = await redis.get(
+      `${REDIS_PREFIX.MAGIC_SIGN_IN}:${token}`
+    )
 
     if (!magicSignInInfoStr) {
       throw new Error("Invalid token")
@@ -63,12 +65,12 @@ export async function GET(request: Request): Promise<Response> {
 
     await setSession(user.id, "magic-link")
 
-    await redis.del(`magic-sign-in:${token}`)
+    await redis.del(`${REDIS_PREFIX.MAGIC_SIGN_IN}:${token}`)
 
     return new Response(null, {
       status: 302,
       headers: {
-        Location: afterSignInUrl,
+        Location: AFTER_SIGN_IN_URL,
       },
     })
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any

@@ -3,7 +3,7 @@
 import { createId } from "@paralleldrive/cuid2"
 import { eq } from "drizzle-orm"
 
-import { EMAIL_TTL } from "@/config"
+import { REDIS_PREFIX, TOKEN_TTL } from "@/config"
 import { database } from "@/db"
 import { usersTable } from "@/db/schemas"
 import { redis } from "@/client/redis"
@@ -31,11 +31,11 @@ export const sendForgotPasswordAction = unauthenticatedAction
     }
 
     const verificationToken = createId()
-    const expiresAt = new Date(Date.now() + EMAIL_TTL)
+    const expiresAt = new Date(Date.now() + TOKEN_TTL.PASSWORD_RESET_EMAIL)
 
     // Save verification token in KV with expiration
     await redis.set(
-      `password-reset:${verificationToken}`,
+      `${REDIS_PREFIX.PASSWORD_RESET}:${verificationToken}`,
       JSON.stringify({
         userId: user.id,
         expiresAt: expiresAt.toISOString(),

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 import argon2 from "argon2"
 import { eq } from "drizzle-orm"
 
-import { afterSignInUrl } from "@/config"
+import { AFTER_SIGN_IN_URL } from "@/config"
 import { database } from "@/db"
 import { usersTable } from "@/db/schemas"
 import { rateLimitByKey } from "@/lib/limiter"
@@ -47,5 +47,5 @@ export const signInAction = unauthenticatedAction
 
     await setSession(user.id)
 
-    redirect(afterSignInUrl)
+    redirect(AFTER_SIGN_IN_URL)
   })

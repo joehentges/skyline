@@ -6,10 +6,11 @@ import argon2 from "argon2"
 import { eq } from "drizzle-orm"
 
 import { env } from "@/env"
-import { afterSignInUrl, EMAIL_TTL } from "@/config"
+import { AFTER_SIGN_IN_URL, REDIS_PREFIX, TOKEN_TTL } from "@/config"
 import { database } from "@/db"
 import { usersTable } from "@/db/schemas"
 import { redis } from "@/client/redis"
+import { stripe } from "@/client/stripe"
 import { getIp } from "@/lib/get-ip"
 import { rateLimitByKey } from "@/lib/limiter"
 import { unauthenticatedAction } from "@/lib/safe-action"
@@ -48,22 +49,33 @@ export const signUpAction = unauthenticatedAction
       throw new Error("Email is already in use")
     }
 
+    const signUpIpAddress = await getIp()
+
+    const stripeCustomer = await stripe.customers.create({
+      email: parsedInput.email,
+      name: parsedInput.displayName,
+      metadata: {
+        signUpIpAddress,
+      },
+    })
+
     const passwordHash = await argon2.hash(parsedInput.password)
     const [user] = await database
       .insert(usersTable)
       .values({
         email: parsedInput.email,
         passwordHash,
-        signUpIpAddress: await getIp(),
+        signUpIpAddress,
         displayName: parsedInput.displayName,
+        stripeCustomerId: stripeCustomer.id,
       })
       .returning()
 
     const verificationToken = createId()
-    const expiresAt = new Date(Date.now() + EMAIL_TTL)
+    const expiresAt = new Date(Date.now() + TOKEN_TTL.EMAIL_VERIFICATION_EMAIL)
 
     await redis.set(
-      `email-verification:${verificationToken}`,
+      `${REDIS_PREFIX.EMAIL_VERIFICATION}:${verificationToken}`,
       JSON.stringify({
         userId: user.id,
         expiresAt: expiresAt.toISOString(),
@@ -76,5 +88,5 @@ export const signUpAction = unauthenticatedAction
 
     await setSession(user.id, "password")
 
-    redirect(afterSignInUrl)
+    redirect(AFTER_SIGN_IN_URL)
   })

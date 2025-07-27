@@ -1,5 +1,4 @@
 import { getAllSessionsOfUser } from "@/cache-session"
-
 import { assertAuthenticated } from "@/lib/session"
 
 export default async function SecureDashboardPage() {

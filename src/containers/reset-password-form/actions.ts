@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 import argon2 from "argon2"
 import { eq } from "drizzle-orm"
 
-import { signInUrl } from "@/config"
+import { SIGN_IN_URL } from "@/config"
 import { database } from "@/db"
 import { usersTable } from "@/db/schemas"
 import { redis } from "@/client/redis"
@@ -58,5 +58,5 @@ export const resetPasswordAction = unauthenticatedAction
 
     await redis.del(`password-reset:${parsedInput.token}`)
 
-    redirect(signInUrl)
+    redirect(SIGN_IN_URL)
   })

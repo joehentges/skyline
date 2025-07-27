@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
-import { afterSignInUrl } from "@/config"
+import { AFTER_SIGN_IN_URL } from "@/config"
 import { getCurrentUser } from "@/lib/session"
 import { MagicLinkForm } from "@/containers/magic-link-form"
 import {
@@ -15,7 +15,7 @@ export default async function MagicLinkPage() {
   const user = await getCurrentUser()
 
   if (user) {
-    redirect(afterSignInUrl)
+    redirect(AFTER_SIGN_IN_URL)
   }
 
   return (

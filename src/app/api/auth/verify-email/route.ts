@@ -1,8 +1,9 @@
-import { updateAllSessionsOfUser } from "@/cache-session"
 import { eq } from "drizzle-orm"
 
+import { REDIS_PREFIX } from "@/config"
 import { database } from "@/db"
 import { usersTable } from "@/db/schemas"
+import { updateAllSessionsOfUser } from "@/cache-session"
 import { redis } from "@/client/redis"
 import { rateLimitByIp } from "@/lib/limiter"
 
@@ -24,7 +25,9 @@ export const GET = async (request: Request) => {
       })
     }
 
-    const verifyEmailInfoStr = await redis.get(`email-verification:${token}`)
+    const verifyEmailInfoStr = await redis.get(
+      `${REDIS_PREFIX.EMAIL_VERIFICATION}:${token}`
+    )
 
     if (!verifyEmailInfoStr) {
       throw new Error("Invalid token")
@@ -57,7 +60,7 @@ export const GET = async (request: Request) => {
 
     await updateAllSessionsOfUser(verifyEmailInfo.userId)
 
-    await redis.del(`email-verification:${token}`)
+    await redis.del(`${REDIS_PREFIX.EMAIL_VERIFICATION}:${token}`)
 
     return new Response(null, {
       status: 302,

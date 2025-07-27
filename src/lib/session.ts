@@ -3,9 +3,8 @@
 import { cache } from "react"
 import { cookies as nextCookies } from "next/headers"
 import { redirect } from "next/navigation"
-import { CreateCacheSessionParams } from "@/cache-session"
 
-import { signInUrl } from "@/config"
+import { SIGN_IN_URL } from "@/config"
 import { User } from "@/db/schemas"
 import {
   createSession,
@@ -15,6 +14,7 @@ import {
   setSessionTokenCookie,
   validateRequest,
 } from "@/auth"
+import { CreateCacheSessionParams } from "@/cache-session"
 
 export const getCurrentUser = cache(async () => {
   const session = await validateRequest()
@@ -27,7 +27,7 @@ export const getCurrentUser = cache(async () => {
 export const assertAuthenticated = async () => {
   const user = await getCurrentUser()
   if (!user) {
-    redirect(signInUrl)
+    redirect(SIGN_IN_URL)
   }
   return user
 }

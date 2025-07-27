@@ -2,7 +2,7 @@
 
 import { createId } from "@paralleldrive/cuid2"
 
-import { EMAIL_TTL } from "@/config"
+import { REDIS_PREFIX, TOKEN_TTL } from "@/config"
 import { redis } from "@/client/redis"
 import { rateLimitByKey } from "@/lib/limiter"
 import { unauthenticatedAction } from "@/lib/safe-action"
@@ -20,11 +20,11 @@ export const sendMagicLinkAction = unauthenticatedAction
     })
 
     const magicLinkToken = createId()
-    const expiresAt = new Date(Date.now() + EMAIL_TTL)
+    const expiresAt = new Date(Date.now() + TOKEN_TTL.MAGIC_LINK_EMAIL)
 
     // Save verification token in KV with expiration
     await redis.set(
-      `magic-sign-in:${magicLinkToken}`,
+      `${REDIS_PREFIX.MAGIC_SIGN_IN}:${magicLinkToken}`,
       JSON.stringify({
         email: parsedInput.email,
         expiresAt: expiresAt.toISOString(),

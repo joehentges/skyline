@@ -2,6 +2,8 @@ import "dotenv/config"
 
 import { sql } from "drizzle-orm"
 
+import { redis } from "@/client/redis"
+
 import { database, pg } from "./index"
 
 async function main() {
@@ -19,6 +21,10 @@ async function main() {
   )
 
   await pg.end()
+
+  await redis.flushall()
+
+  await redis.disconnect()
 }
 
 main()

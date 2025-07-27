@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { afterSignInUrl } from "@/config"
+import { AFTER_SIGN_IN_URL } from "@/config"
 import { getCurrentUser } from "@/lib/session"
 import { Button } from "@/components/ui/button"
 
@@ -21,7 +21,7 @@ export default async function VerifyEmailSuccessPage() {
         <p className="text-center text-base">
           Your email has been successfully verified
         </p>
-        <Link href={user ? afterSignInUrl : "/sign-in"} className="w-full">
+        <Link href={user ? AFTER_SIGN_IN_URL : "/sign-in"} className="w-full">
           <Button className="w-full">{user ? "Continue" : "Sign In"}</Button>
         </Link>
       </div>

@@ -14,6 +14,8 @@ RESEND_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 RESEND_EMAIL_FROM=email@provider.com
 CLOUDFLARE_TURNSTILE_SECRET_KEY=0x4AAAAAAA-XXXXXXXXXXXXXXXXXXXXXXXX
 NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY=0x4AAAAAAA-XXXXXXXXXXXXX
+STRIPE_SECRET_KEY=sk_XXXX_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_XXXX_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ```
 
 Next, run the following commands to start the server (docker compose commands optional):
@@ -37,7 +39,7 @@ Open the app at [http://localhost:3000](http://localhost:3000)
 One user is initially seeded with the `npm run db:seed` command. Modify the `src\db\seed.ts` file to change it or add more.
 
 ```bash
-email: testing@example.com
+email: delivered@resend.dev
 password: password
 ```
 

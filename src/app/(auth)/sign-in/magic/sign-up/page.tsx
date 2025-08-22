@@ -1,9 +1,8 @@
 import Link from "next/link"
-import { notFound, redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 
-import { AFTER_SIGN_IN_URL, REDIS_PREFIX } from "@/config"
+import { REDIS_PREFIX } from "@/config"
 import { redis } from "@/client/redis"
-import { getCurrentUser } from "@/lib/session"
 import { MagicLinkSignUpForm } from "@/containers/magic-link-sign-up-form"
 
 interface MagicLinkSignUpPageProps {
@@ -13,12 +12,6 @@ interface MagicLinkSignUpPageProps {
 export default async function MagicLinkSignUpPage(
   props: MagicLinkSignUpPageProps
 ) {
-  const user = await getCurrentUser()
-
-  if (user) {
-    redirect(AFTER_SIGN_IN_URL)
-  }
-
   const { token } = await props.searchParams
 
   if (!token) {

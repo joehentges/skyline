@@ -1,8 +1,5 @@
 import Link from "next/link"
-import { redirect } from "next/navigation"
 
-import { AFTER_SIGN_IN_URL } from "@/config"
-import { getCurrentUser } from "@/lib/session"
 import { MagicLinkForm } from "@/containers/magic-link-form"
 import {
   Tooltip,
@@ -12,12 +9,6 @@ import {
 } from "@/components/ui/tooltip"
 
 export default async function MagicLinkPage() {
-  const user = await getCurrentUser()
-
-  if (user) {
-    redirect(AFTER_SIGN_IN_URL)
-  }
-
   return (
     <div className="flex h-full flex-col justify-between space-y-8 px-4 py-8">
       <Link href="/">

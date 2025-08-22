@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm"
 
-import { REDIS_PREFIX } from "@/config"
+import { AFTER_SIGN_IN_URL, REDIS_PREFIX } from "@/config"
 import { database } from "@/db"
 import { usersTable } from "@/db/schemas"
 import { updateAllSessionsOfUser } from "@/cache-session"
@@ -76,7 +76,7 @@ export const GET = async (request: Request) => {
     return new Response(null, {
       status: 302,
       headers: {
-        Location: "/verify-email-success",
+        Location: AFTER_SIGN_IN_URL,
       },
     })
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any

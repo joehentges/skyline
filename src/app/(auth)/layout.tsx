@@ -1,8 +1,19 @@
-export default function AuthLayout({
+import { redirect } from "next/navigation"
+
+import { AFTER_SIGN_IN_URL } from "@/config"
+import { getCurrentUser } from "@/lib/session"
+
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const user = await getCurrentUser()
+
+  if (user) {
+    redirect(AFTER_SIGN_IN_URL)
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2">
       <div className="bg-muted-foreground hidden h-full min-h-screen w-screen md:block md:w-[50vw]" />

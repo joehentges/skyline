@@ -1,17 +1,8 @@
 import Link from "next/link"
-import { redirect } from "next/navigation"
 
-import { AFTER_SIGN_IN_URL } from "@/config"
-import { getCurrentUser } from "@/lib/session"
 import { SignUpForm } from "@/containers/sign-up-form"
 
 export default async function SignUpPage() {
-  const user = await getCurrentUser()
-
-  if (user) {
-    redirect(AFTER_SIGN_IN_URL)
-  }
-
   return (
     <div className="flex h-full flex-col justify-between space-y-8 px-4 py-8">
       <Link href="/">

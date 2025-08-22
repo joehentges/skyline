@@ -6,7 +6,10 @@ import {
 } from "@oslojs/encoding"
 import { eq } from "drizzle-orm"
 
+import { AUTH_SESSION_TTL } from "@/config"
+import { database } from "@/db"
 import { User, usersTable } from "@/db/schemas"
+import { redis } from "@/client/redis"
 
 import {
   CacheSession,
@@ -16,8 +19,6 @@ import {
   getSessionKey,
   updateCacheSession,
 } from "./cache-session"
-import { redis } from "./client/redis"
-import { database } from "./db"
 
 export function getUserFromDatabase(userId: User["id"]) {
   return database.query.usersTable.findFirst({
@@ -51,7 +52,7 @@ export async function createSession(
   return createCacheSession({
     sessionId,
     userId,
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
+    expiresAt: new Date(Date.now() + AUTH_SESSION_TTL), // 30 days
     user,
     authenticationType,
     passkeyCredentialId,
@@ -76,11 +77,11 @@ async function validateSessionToken(
     return null
   }
 
-  if (Date.now() >= session.expiresAt - 1000 * 60 * 60 * 24 * 15) {
+  if (Date.now() >= session.expiresAt - AUTH_SESSION_TTL / 2) {
     await updateCacheSession(
       sessionId,
       userId,
-      new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
+      new Date(Date.now() + AUTH_SESSION_TTL)
     )
   }
 

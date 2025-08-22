@@ -1,3 +1,5 @@
+export const AUTH_SESSION_TTL = 1000 * 60 * 60 * 24 * 30
+
 // Token Time To Live
 export const TOKEN_TTL = {
   PASSWORD_RESET_EMAIL: 1000 * 60 * 60 * 1, // 1 hour
@@ -11,7 +13,7 @@ export const REDIS_PREFIX = {
   EMAIL_VERIFICATION: "email-verification",
 }
 
-export const AFTER_SIGN_IN_URL = "/organizations"
+export const AFTER_SIGN_IN_URL = "/dashboard"
 export const SIGN_IN_URL = "/sign-in"
 
 // Error Messages

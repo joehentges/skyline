@@ -8,6 +8,13 @@
       "when": 1746337680848,
       "tag": "0000_third_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1755830774379,
+      "tag": "0001_wooden_zeigeist",
+      "breakpoints": true
     }
   ]
 }

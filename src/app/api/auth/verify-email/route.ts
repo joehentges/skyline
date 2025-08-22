@@ -6,12 +6,19 @@ import { usersTable } from "@/db/schemas"
 import { updateAllSessionsOfUser } from "@/cache-session"
 import { redis } from "@/client/redis"
 import { rateLimitByIp } from "@/lib/limiter"
+import { getCurrentUser } from "@/lib/session"
 
 export const dynamic = "force-dynamic"
 
 export const GET = async (request: Request) => {
   try {
     await rateLimitByIp({ key: "verify-email", limit: 5, window: 60000 })
+
+    const existingSession = await getCurrentUser()
+
+    if (!existingSession) {
+      throw new Error("User not authenticated")
+    }
 
     const url = new URL(request.url)
     const token = url.searchParams.get("token")
@@ -36,6 +43,10 @@ export const GET = async (request: Request) => {
     const verifyEmailInfo = JSON.parse(verifyEmailInfoStr) as {
       userId: string
       expiresAt: string
+    }
+
+    if (verifyEmailInfo.userId !== existingSession.id) {
+      throw new Error("You are not authorized to verify this email")
     }
 
     // Check if token is expired (although KV should have auto-deleted it)

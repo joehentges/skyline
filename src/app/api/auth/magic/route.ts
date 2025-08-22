@@ -5,13 +5,25 @@ import { database } from "@/db"
 import { usersTable } from "@/db/schemas"
 import { redis } from "@/client/redis"
 import { rateLimitByIp } from "@/lib/limiter"
-import { setSession } from "@/lib/session"
+import { getCurrentUser, setSession } from "@/lib/session"
 
 export const dynamic = "force-dynamic"
 
 export async function GET(request: Request): Promise<Response> {
   try {
     await rateLimitByIp({ key: "magic-token", limit: 5, window: 60000 })
+
+    const existingSession = await getCurrentUser()
+
+    if (existingSession) {
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: AFTER_SIGN_IN_URL,
+        },
+      })
+    }
+
     const url = new URL(request.url)
     const token = url.searchParams.get("token")
 

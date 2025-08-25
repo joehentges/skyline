@@ -15,6 +15,13 @@
       "when": 1755830774379,
       "tag": "0001_wooden_zeigeist",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1756088349145,
+      "tag": "0002_nifty_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }

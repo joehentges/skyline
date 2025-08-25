@@ -121,7 +121,7 @@ export function ReviewAndPasswordForm(props: ReviewAndPasswordFormProps) {
                   <CheckIcon className="h-4 w-4 text-emerald-500" />
                 ) : (
                   <XIcon className="text-destructive h-4 w-4" />
-                )}{" "}
+                )}
                 Contains at least 3 of: uppercase, lowercase, numbers, special
                 characters
               </FormDescription>
@@ -130,7 +130,7 @@ export function ReviewAndPasswordForm(props: ReviewAndPasswordFormProps) {
                   <CheckIcon className="h-4 w-4 text-emerald-500" />
                 ) : (
                   <XIcon className="text-destructive h-4 w-4" />
-                )}{" "}
+                )}
                 Not a commonly used password
               </FormDescription>
             </FormItem>

@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { passwordFormSchema } from "@/containers/password-form-fields/validation"
+import { passwordFormSchema } from "@/components/password-form-fields"
 
 export const resetPasswordFormSchema = z
   .object({

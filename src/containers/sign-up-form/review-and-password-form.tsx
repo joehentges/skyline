@@ -9,8 +9,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Form } from "@/components/ui/form"
 import { Captcha } from "@/components/captcha"
 import { LoaderButton } from "@/components/loader-button"
+import { PasswordFormFields } from "@/components/password-form-fields"
 
-import { PasswordFormFields } from "../password-form-fields"
 import { reviewAndPasswordFormSchema } from "./validation"
 
 interface ReviewAndPasswordFormProps {

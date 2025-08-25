@@ -10,8 +10,8 @@ import { z } from "zod"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Form } from "@/components/ui/form"
 import { LoaderButton } from "@/components/loader-button"
+import { PasswordFormFields } from "@/components/password-form-fields"
 
-import { PasswordFormFields } from "../password-form-fields"
 import { resetPasswordAction } from "./actions"
 import { resetPasswordFormSchema } from "./validation"
 

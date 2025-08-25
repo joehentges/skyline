@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 import { env } from "@/env"
-import { passwordFormSchema } from "@/containers/password-form-fields/validation"
+import { passwordFormSchema } from "@/components/password-form-fields"
 
 export const userFormSchema = z.object({
   firstName: z

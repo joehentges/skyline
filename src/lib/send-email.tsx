@@ -38,17 +38,23 @@ export async function sendVerifyEmail(email: string, token: string) {
 }
 
 export async function sendResetPasswordEmail(email: string, token: string) {
+  const href = `${env.HOST_NAME}/reset-password?token=${token}`
+  console.log(
+    `Password reset link sign in sent to: ${email} with link: ${href}`
+  )
   await sendEmail(
     email,
     `Your password reset link for ${siteConfig.name}`,
-    <ResetPasswordEmail token={token} />
+    <ResetPasswordEmail href={token} />
   )
 }
 
 export async function sendMagicLinkEmail(email: string, token: string) {
+  const href = `${env.HOST_NAME}/api/auth/magic?token=${token}`
+  console.log(`Magic link sign in sent to: ${email} with link: ${href}`)
   await sendEmail(
     email,
     `Your magic link link for ${siteConfig.name}`,
-    <MagicLinkEmail token={token} />
+    <MagicLinkEmail href={href} />
   )
 }

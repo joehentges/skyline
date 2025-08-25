@@ -12,19 +12,9 @@ import {
   Text,
 } from "@react-email/components"
 
-import { env } from "@/env"
 import { siteConfig } from "@/config/site"
 
-const HOST_NAME = env.HOST_NAME
-
-export function MagicLinkEmail({
-  token,
-  from,
-}: {
-  token: string
-  from?: string
-}) {
-  const magicLinkHref = `${HOST_NAME}/api/auth/magic?token=${token}${from ? `&from=${from}` : ""}`
+export function MagicLinkEmail({ href }: { href: string }) {
   return (
     <Html>
       <Head />
@@ -47,7 +37,7 @@ export function MagicLinkEmail({
 
                 <Text className="text-[14px] leading-[24px] font-medium text-black">
                   <Link
-                    href={magicLinkHref}
+                    href={href}
                     target="_blank"
                     className="text-[#2754C5] underline"
                   >

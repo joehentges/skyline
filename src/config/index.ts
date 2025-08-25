@@ -1,4 +1,4 @@
-export const AUTH_SESSION_TTL = 1000 * 60 * 60 * 24 * 7 // 1 day
+export const AUTH_SESSION_TTL = 1000 * 60 * 60 * 24 * 7 // 7 days
 
 // Token Time To Live
 export const TOKEN_TTL = {

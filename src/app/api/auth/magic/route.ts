@@ -72,7 +72,7 @@ export async function GET(request: Request): Promise<Response> {
       .set({
         emailVerified: new Date(),
       })
-      .where(eq(usersTable.id, existingUser.email))
+      .where(eq(usersTable.id, existingUser.id))
       .returning()
 
     await setSession(user.id, "magic-link")

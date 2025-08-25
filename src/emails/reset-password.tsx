@@ -12,13 +12,9 @@ import {
   Text,
 } from "@react-email/components"
 
-import { env } from "@/env"
 import { siteConfig } from "@/config/site"
 
-const HOST_NAME = env.HOST_NAME
-
-export function ResetPasswordEmail({ token }: { token: string }) {
-  const resetPasswordHref = `${HOST_NAME}/reset-password?token=${token}`
+export function ResetPasswordEmail({ href }: { href: string }) {
   return (
     <Html>
       <Head />
@@ -40,7 +36,7 @@ export function ResetPasswordEmail({ token }: { token: string }) {
 
                 <Text className="text-[14px] leading-[24px] font-medium text-black">
                   <Link
-                    href={resetPasswordHref}
+                    href={href}
                     target="_blank"
                     className="text-[#2754C5] underline"
                   >

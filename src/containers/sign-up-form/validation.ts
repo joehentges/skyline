@@ -1,7 +1,10 @@
 import { z } from "zod"
 
 import { env } from "@/env"
-import { passwordFormSchema } from "@/components/password-form-fields"
+import {
+  passwordFormSchema,
+  passwordFormSchemaSuperRefine,
+} from "@/containers/password-form-fields/validation"
 
 export const userFormSchema = z.object({
   firstName: z
@@ -26,11 +29,12 @@ export const verifyEmailFormSchema = z.object({
 
 export const reviewAndPasswordFormSchema = z
   .object({
+    ...passwordFormSchema.shape,
     captchaToken: Boolean(env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY)
       ? z.string().min(1, "Please complete the captcha")
       : z.string().optional(),
   })
-  .extend(passwordFormSchema.shape)
+  .superRefine(passwordFormSchemaSuperRefine)
 
 export const signUpFormSchema = userFormSchema.extend(
   reviewAndPasswordFormSchema.shape

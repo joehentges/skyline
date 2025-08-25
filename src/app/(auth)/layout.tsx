@@ -1,9 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { CommandIcon } from "lucide-react"
 
 import { AFTER_SIGN_IN_URL } from "@/config"
-import { siteConfig } from "@/config/site"
 import { getCurrentUser } from "@/lib/session"
 import { Logo } from "@/components/logo"
 

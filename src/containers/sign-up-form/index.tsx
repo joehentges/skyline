@@ -1,40 +1,26 @@
 "use client"
 
-import Link from "next/link"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Terminal, WandSparkles } from "lucide-react"
+import { useState } from "react"
+import { ChevronLeftIcon } from "lucide-react"
 import { useAction } from "next-safe-action/hooks"
-import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Captcha } from "@/components/captcha"
-import { LoaderButton } from "@/components/loader-button"
+import { Progress } from "@/components/ui/progress"
 
 import { signUpAction } from "./actions"
-import { signUpFormSchema } from "./validation"
+import { ReviewAndPasswordForm } from "./review-and-password-form"
+import { UserForm } from "./user-form"
+import { reviewAndPasswordFormSchema, userFormSchema } from "./validation"
+import { VerifyEmailForm } from "./verify-email-form"
 
 export function SignUpForm() {
-  const form = useForm<z.infer<typeof signUpFormSchema>>({
-    resolver: zodResolver(signUpFormSchema),
-    defaultValues: {
-      displayName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  })
+  const [step, setStep] = useState<number>(0)
+  const [formError, setFormError] = useState<string>()
+
+  const [userData, setUserData] = useState<z.infer<typeof userFormSchema>>()
+  const [initialOtpSecret, setInitialOtpSecret] = useState<string>()
 
   const { execute, result, isPending, hasErrored } = useAction(signUpAction, {
     onError({ error }) {
@@ -50,131 +36,76 @@ export function SignUpForm() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof signUpFormSchema>) {
-    execute(values)
+  function onSubmit(values: z.infer<typeof reviewAndPasswordFormSchema>) {
+    if (!userData) {
+      return setFormError("Please resubmit your user data")
+    }
+
+    execute({
+      ...userData,
+      ...values,
+    })
+  }
+
+  function nextStep() {
+    setStep((currentStep) => currentStep + 1)
+    setFormError(undefined)
+  }
+
+  function previousStep() {
+    // if going back to verify email step - skip and go back to user details step
+    setStep((currentStep) => (currentStep === 2 ? 0 : currentStep - 1))
+    setFormError(undefined)
+  }
+
+  function onUserFormSubmit(
+    values: z.infer<typeof userFormSchema>,
+    initialSecret: string
+  ) {
+    setUserData(values)
+    setInitialOtpSecret(initialSecret)
+    nextStep()
+  }
+
+  function onVerifyEmailFormSubmit() {
+    nextStep()
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        {hasErrored && (
-          <Alert variant="destructive">
-            <Terminal className="h-4 w-4" />
-            <AlertTitle>Uhoh, we couldn&apos;t sign you up</AlertTitle>
-            <AlertDescription>{result.serverError}</AlertDescription>
-          </Alert>
-        )}
-
-        <FormField
-          control={form.control}
-          name="displayName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Display name</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  className="w-full"
-                  placeholder="Enter your display name"
-                  type="text"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  className="w-full"
-                  placeholder="Enter your email address"
-                  type="email"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  className="w-full"
-                  placeholder="Enter your password"
-                  type="password"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm password</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  className="w-full"
-                  placeholder="Confirm your password"
-                  type="password"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Captcha
-          onSuccess={(token) => form.setValue("captchaToken", token)}
-          validationerror={form.formState.errors.captchaToken?.message}
-        />
-
-        <div className="pt-2">
-          <LoaderButton
-            isLoading={isPending}
-            className="w-full"
-            type="submit"
-            size="lg"
+    <>
+      {step > 0 && (
+        <div className="flex items-center gap-5">
+          <Button
+            variant="link"
+            onClick={previousStep}
+            className="cursor-pointer px-0"
           >
-            Sign Up
-          </LoaderButton>
-        </div>
-      </form>
-
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background text-muted-foreground px-2">
-            Or Sign Up with
-          </span>
-        </div>
-      </div>
-      <div className="flex flex-col space-y-4">
-        <Link href="/sign-in/magic">
-          <Button variant="outline" className="w-full" type="submit" size="sm">
-            <WandSparkles className="mr-2 h-4 w-4" /> Magic Link
+            <ChevronLeftIcon /> Back
           </Button>
-        </Link>
-      </div>
-    </Form>
+          <Progress value={step * 33} />
+        </div>
+      )}
+      {step === 0 && (
+        <UserForm
+          onUserFormSubmit={onUserFormSubmit}
+          defaultValues={userData}
+        />
+      )}
+      {step === 1 && (
+        <VerifyEmailForm
+          onVerifyEmailFormSubmit={onVerifyEmailFormSubmit}
+          email={userData?.email || ""}
+          initialOtpSecret={initialOtpSecret || ""}
+        />
+      )}
+      {step === 2 && (
+        <ReviewAndPasswordForm
+          onSubmit={onSubmit}
+          isPending={isPending}
+          hasErrored={hasErrored || !!formError}
+          errorMessage={result.serverError || formError}
+        />
+      )}
+    </>
   )
 }

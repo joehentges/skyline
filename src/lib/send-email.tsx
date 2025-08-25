@@ -12,6 +12,10 @@ async function sendEmail(
   subject: string,
   body: React.ReactNode
 ) {
+  if (env.NODE_ENV !== "production") {
+    return
+  }
+
   const { error } = await resend.emails.send({
     from: env.RESEND_EMAIL_FROM,
     to: email,
@@ -25,6 +29,7 @@ async function sendEmail(
 }
 
 export async function sendVerifyEmail(email: string, token: string) {
+  console.log(`OTP email verification sent to: ${email} with token: ${token}`)
   await sendEmail(
     email,
     `Verify your email for ${siteConfig.name}`,

@@ -11,17 +11,12 @@ import {
 export default async function MagicLinkPage() {
   return (
     <div className="flex h-full flex-col justify-between space-y-8 px-4 py-8">
-      <Link href="/">
-        <p className="text-center text-3xl font-bold">
-          upload<span className="text-primary">thing</span>
-        </p>
-      </Link>
       <div className="space-y-8">
         <div className="space-y-3">
           <h2 className="text-center text-2xl font-bold md:text-3xl">
-            Welcome
+            Welcome Back
           </h2>
-          <p className="text-center text-base">
+          <p className="text-center">
             Send a{" "}
             <TooltipProvider>
               <Tooltip>
@@ -29,7 +24,7 @@ export default async function MagicLinkPage() {
                   magic link
                 </TooltipTrigger>
                 <TooltipContent>
-                  A magic link lets you to sign in / up without a password
+                  A magic link lets you to sign in without a password
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>{" "}

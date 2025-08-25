@@ -5,20 +5,24 @@ import {
   Head,
   Hr,
   Html,
-  Link,
   Preview,
   Section,
   Tailwind,
   Text,
 } from "@react-email/components"
 
-import { env } from "@/env"
 import { siteConfig } from "@/config/site"
 
-const HOST_NAME = env.HOST_NAME
-
 export function VerifyEmail({ token }: { token: string }) {
-  const verifyEmailHref = `${HOST_NAME}/api/auth/verify-email?token=${token}`
+  if (token.length !== 6) {
+    throw new Error("Invalid token")
+  }
+
+  const tokenPart1 = token.slice(0, 3)
+  const tokenPart2 = token.slice(3)
+
+  const formattedToken = tokenPart1 + "-" + tokenPart2
+
   return (
     <Html>
       <Head />
@@ -35,17 +39,15 @@ export function VerifyEmail({ token }: { token: string }) {
 
               <Section className="mt-[32px] mb-[32px] text-center">
                 <Text className="mb-8 text-[14px] leading-[24px] font-medium text-black">
-                  Click the following link to verify your email
+                  Enter the following code to verify your email address
                 </Text>
 
-                <Text className="text-[14px] leading-[24px] font-medium text-black">
-                  <Link
-                    href={verifyEmailHref}
-                    target="_blank"
-                    className="text-[#2754C5] underline"
-                  >
-                    Verify Email
-                  </Link>
+                <Text className="mb-8 text-[20px] leading-[24px] font-medium text-black">
+                  {formattedToken}
+                </Text>
+
+                <Text className="text-muted-foreground text-[12px] leading-[24px] font-medium">
+                  If you did not request this email, please ignore it
                 </Text>
               </Section>
 

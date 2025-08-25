@@ -5,11 +5,6 @@ import { ForgotPasswordForm } from "@/containers/forgot-password-form"
 export default async function ForgotPasswordPage() {
   return (
     <div className="flex h-full flex-col justify-between space-y-8 px-4 py-8">
-      <Link href="/">
-        <p className="text-center text-3xl font-bold">
-          upload<span className="text-primary">thing</span>
-        </p>
-      </Link>
       <div className="space-y-8">
         <div className="space-y-3">
           <h2 className="text-center text-2xl font-bold md:text-3xl">

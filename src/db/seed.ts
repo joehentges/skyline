@@ -21,11 +21,12 @@ async function main() {
   await database
     .insert(usersTable)
     .values({
+      stripeCustomerId: stripeCustomer.id,
       email: "delivered@resend.dev",
       passwordHash,
       signUpIpAddress: null,
-      displayName: "Seed Account",
-      stripeCustomerId: stripeCustomer.id,
+      firstName: "Seed",
+      lastName: "Account",
     })
     .returning()
 

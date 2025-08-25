@@ -27,9 +27,10 @@ export function getUserFromDatabase(userId: User["id"]) {
       id: true,
       dateCreated: true,
       dateUpdated: true,
-      displayName: true,
       email: true,
       emailVerified: true,
+      firstName: true,
+      lastName: true,
       avatar: true,
     },
   })

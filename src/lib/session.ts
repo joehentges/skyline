@@ -34,7 +34,7 @@ export const assertAuthenticated = async () => {
 
 export async function setSession(
   userId: User["id"],
-  authenticationType?: CreateCacheSessionParams["authenticationType"]
+  authenticationType: CreateCacheSessionParams["authenticationType"]
 ) {
   const sessionToken = generateSessionToken()
   const session = await createSession(sessionToken, userId, authenticationType)

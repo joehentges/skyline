@@ -7,7 +7,7 @@ export function Footer() {
   return (
     <div className="border-t py-4">
       <div className="text-muted-foreground container flex flex-col justify-between gap-y-2 place-self-center self-center text-sm md:flex-row">
-        <div>
+        <div className="mx-auto md:mx-0">
           <p>© 2025 {siteConfig.name}</p>
         </div>
 

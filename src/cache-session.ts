@@ -29,8 +29,7 @@ export interface CacheSession {
   continent?: string
   ip?: string | null
   userAgent?: string | null
-  authenticationType?: "password" | "magic-link"
-  passkeyCredentialId?: string
+  authenticationType: "password" | "magic-link"
 }
 
 export interface CreateCacheSessionParams
@@ -45,7 +44,6 @@ export async function createCacheSession({
   expiresAt,
   user,
   authenticationType,
-  passkeyCredentialId,
 }: CreateCacheSessionParams): Promise<CacheSession> {
   const headersList = await headers()
   const session: CacheSession = {
@@ -57,11 +55,18 @@ export async function createCacheSession({
     userAgent: headersList.get("user-agent"),
     user,
     authenticationType,
-    passkeyCredentialId,
   }
 
-  // TODO We should limit the number of sessions per user to 10
   // If we have more than 10 sessions, we should delete the oldest session
+  const allSessions = await getAllSessionsOfUser(user.id)
+  if (allSessions.length > 9) {
+    const oldestSession = allSessions.reduce((prev, curr) => {
+      if (!prev.absoluteExpiration) return curr
+      if (!curr.absoluteExpiration) return prev
+      return curr.absoluteExpiration < prev.absoluteExpiration ? curr : prev
+    })
+    await deleteCacheSession(oldestSession.session.id, user.id)
+  }
 
   await redis.set(
     getSessionKey(userId, sessionId),

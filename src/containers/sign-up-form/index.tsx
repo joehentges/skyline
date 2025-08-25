@@ -20,7 +20,6 @@ export function SignUpForm() {
   const [formError, setFormError] = useState<string>()
 
   const [userData, setUserData] = useState<z.infer<typeof userFormSchema>>()
-  const [initialOtpSecret, setInitialOtpSecret] = useState<string>()
 
   const { execute, result, isPending, hasErrored } = useAction(signUpAction, {
     onError({ error }) {
@@ -58,12 +57,8 @@ export function SignUpForm() {
     setFormError(undefined)
   }
 
-  function onUserFormSubmit(
-    values: z.infer<typeof userFormSchema>,
-    initialSecret: string
-  ) {
+  function onUserFormSubmit(values: z.infer<typeof userFormSchema>) {
     setUserData(values)
-    setInitialOtpSecret(initialSecret)
     nextStep()
   }
 
@@ -95,7 +90,6 @@ export function SignUpForm() {
         <VerifyEmailForm
           onVerifyEmailFormSubmit={onVerifyEmailFormSubmit}
           email={userData?.email || ""}
-          initialOtpSecret={initialOtpSecret || ""}
         />
       )}
       {step === 2 && (

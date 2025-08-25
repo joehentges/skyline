@@ -19,7 +19,7 @@ export const sendVerifyEmailActionSchema = z.object({
 })
 
 export const verifyEmailFormSchema = z.object({
-  otpSecret: z.string().min(1, "Missing secret"),
+  email: z.email(),
   token: z.string().length(6, "Must be 6 characters"),
 })
 

@@ -14,7 +14,7 @@ import { sendResetPasswordEmail } from "@/lib/send-email"
 import { forgotPasswordFormSchema } from "./validation"
 
 export const sendForgotPasswordAction = unauthenticatedAction
-  .schema(forgotPasswordFormSchema)
+  .inputSchema(forgotPasswordFormSchema)
   .action(async ({ parsedInput }) => {
     await rateLimitByKey({
       key: `${parsedInput.email}-send-forgot-password`,

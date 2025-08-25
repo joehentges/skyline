@@ -14,7 +14,7 @@ import { unauthenticatedAction } from "@/lib/safe-action"
 import { resetPasswordFormSchema } from "./validation"
 
 export const resetPasswordAction = unauthenticatedAction
-  .schema(resetPasswordFormSchema)
+  .inputSchema(resetPasswordFormSchema)
   .action(async ({ parsedInput }) => {
     await rateLimitByKey({
       key: `${parsedInput.token}-reset-password`,

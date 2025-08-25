@@ -1,3 +1,4 @@
+import { siteConfig } from "@/config/site"
 import { SignUpForm } from "@/containers/sign-up-form"
 
 export default async function SignUpPage() {
@@ -9,8 +10,8 @@ export default async function SignUpPage() {
             Get Started
           </h2>
           <p className="text-center text-base">
-            Welcome to <span className="font-bold">PENDULEM</span> - Let&apos;s
-            create your account
+            Welcome to <span className="font-bold">{siteConfig.name}</span> -
+            Let&apos;s create your account
           </p>
         </div>
         <SignUpForm />

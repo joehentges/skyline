@@ -14,7 +14,7 @@ import { setSession } from "@/lib/session"
 import { signInFormSchema } from "./validation"
 
 export const signInAction = unauthenticatedAction
-  .schema(signInFormSchema)
+  .inputSchema(signInFormSchema)
   .action(async ({ parsedInput }) => {
     await rateLimitByKey({
       key: `${parsedInput.email}-sign-in`,
@@ -45,7 +45,7 @@ export const signInAction = unauthenticatedAction
       throw new Error("Invalid email or password")
     }
 
-    await setSession(user.id)
+    await setSession(user.id, "password")
 
     redirect(AFTER_SIGN_IN_URL)
   })

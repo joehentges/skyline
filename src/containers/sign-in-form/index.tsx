@@ -30,6 +30,7 @@ export function SignInForm() {
     defaultValues: {
       email: "",
       password: "",
+      staySignedIn: false,
     },
   })
 
@@ -67,7 +68,7 @@ export function SignInForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email address</FormLabel>
+              <FormLabel required>Email address</FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -86,7 +87,7 @@ export function SignInForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel required>Password</FormLabel>
               <FormControl>
                 <Input
                   {...field}

@@ -24,10 +24,7 @@ import { sendEmailVerificationCodeAction } from "./actions"
 import { userFormSchema } from "./validation"
 
 interface UserFormProps {
-  onUserFormSubmit: (
-    values: z.infer<typeof userFormSchema>,
-    otpSecret: string
-  ) => void
+  onUserFormSubmit: (values: z.infer<typeof userFormSchema>) => void
   defaultValues?: z.infer<typeof userFormSchema>
 }
 
@@ -52,8 +49,7 @@ export function UserForm(props: UserFormProps) {
         })
       },
       onSuccess({ data }) {
-        const { firstName, lastName, email } = form.getValues()
-        onUserFormSubmit({ firstName, lastName, email }, data.otpSecret)
+        onUserFormSubmit(form.getValues())
         toast.success("Email verification code sent!", {
           description: (
             <p>

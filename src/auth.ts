@@ -27,6 +27,7 @@ export function getUserFromDatabase(userId: User["id"]) {
       id: true,
       dateCreated: true,
       dateUpdated: true,
+      stripeCustomerId: true,
       email: true,
       emailVerified: true,
       firstName: true,
@@ -39,8 +40,7 @@ export function getUserFromDatabase(userId: User["id"]) {
 export async function createSession(
   token: string,
   userId: User["id"],
-  authenticationType?: CreateCacheSessionParams["authenticationType"],
-  passkeyCredentialId?: CreateCacheSessionParams["passkeyCredentialId"]
+  authenticationType: CreateCacheSessionParams["authenticationType"]
 ): Promise<CacheSession> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
 
@@ -53,10 +53,9 @@ export async function createSession(
   return createCacheSession({
     sessionId,
     userId,
-    expiresAt: new Date(Date.now() + AUTH_SESSION_TTL), // 30 days
+    expiresAt: new Date(Date.now() + AUTH_SESSION_TTL),
     user,
     authenticationType,
-    passkeyCredentialId,
   })
 }
 

@@ -11,7 +11,7 @@ import { sendMagicLinkEmail } from "@/lib/send-email"
 import { magicLinkFormSchema } from "./validation"
 
 export const sendMagicLinkAction = unauthenticatedAction
-  .schema(magicLinkFormSchema)
+  .inputSchema(magicLinkFormSchema)
   .action(async ({ parsedInput }) => {
     await rateLimitByKey({
       key: `${parsedInput.email}-send-magic-link`,

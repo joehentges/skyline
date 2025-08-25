@@ -1,14 +1,15 @@
 "use server"
 
+import crypto from "node:crypto"
 import { redirect } from "next/navigation"
 import argon2 from "argon2"
 import { eq } from "drizzle-orm"
-import speakeasy from "speakeasy"
 
 import { env } from "@/env"
-import { AFTER_SIGN_IN_URL, TOKEN_TTL } from "@/config"
+import { AFTER_SIGN_IN_URL, REDIS_PREFIX, TOKEN_TTL } from "@/config"
 import { database } from "@/db"
 import { usersTable } from "@/db/schemas"
+import { redis } from "@/client/redis"
 import { stripe } from "@/client/stripe"
 import { getIp } from "@/lib/get-ip"
 import { rateLimitByIp, rateLimitByKey } from "@/lib/limiter"
@@ -41,20 +42,23 @@ export const sendEmailVerificationCodeAction = unauthenticatedAction
       throw new Error("Email is already in use")
     }
 
-    const secret = speakeasy.generateSecret()
+    const token = crypto.randomInt(100000, 1000000).toString()
+    const expiresAt = new Date(Date.now() + TOKEN_TTL.EMAIL_VERIFICATION)
 
-    const token = speakeasy.totp({
-      secret: secret.base32,
-      encoding: "base32",
-      step: TOKEN_TTL.EMAIL_VERIFICATION_EMAIL,
-    })
+    // Save verification token in KV with expiration
+    await redis.set(
+      `${REDIS_PREFIX.VERIFY_EMAIL}:${token}`,
+      JSON.stringify({
+        email: parsedInput.email,
+        expiresAt: expiresAt.toISOString(),
+      }),
+      "EX",
+      Math.floor((expiresAt.getTime() - Date.now()) / 1000)
+    )
 
     await sendVerifyEmail(parsedInput.email, token)
 
-    return {
-      ...parsedInput,
-      otpSecret: secret.base32,
-    }
+    return { email: parsedInput.email }
   })
 
 export const verifyEmailAction = unauthenticatedAction
@@ -66,16 +70,29 @@ export const verifyEmailAction = unauthenticatedAction
       window: 10000,
     })
 
-    const verified = speakeasy.totp.verify({
-      secret: parsedInput.otpSecret,
-      encoding: "base32",
-      token: parsedInput.token,
-      step: 300,
-    })
+    const tokenInfoStr = await redis.get(
+      `${REDIS_PREFIX.VERIFY_EMAIL}:${parsedInput.token}`
+    )
 
-    if (!verified) {
-      throw new Error("Invalid code!")
+    if (!tokenInfoStr) {
+      throw new Error("Invalid token")
     }
+
+    const tokenInfo = JSON.parse(tokenInfoStr) as {
+      email: string
+      expiresAt: string
+    }
+
+    // Check if token is expired (although redis should have auto-deleted it)
+    if (new Date() > new Date(tokenInfo.expiresAt)) {
+      throw new Error("Token has expired")
+    }
+
+    if (tokenInfo.email !== parsedInput.email) {
+      throw new Error("Invalid token")
+    }
+
+    return { email: parsedInput.email }
   })
 
 export const signUpAction = unauthenticatedAction

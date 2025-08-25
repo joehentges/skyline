@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 export const signInFormSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
+  email: z.email(),
+  password: z.string().min(8, "Enter your password"),
+  staySignedIn: z.boolean(),
 })

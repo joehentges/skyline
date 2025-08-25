@@ -168,7 +168,7 @@ export function ReviewAndPasswordForm(props: ReviewAndPasswordFormProps) {
             type="submit"
             size="lg"
           >
-            Continue
+            Sign up
           </LoaderButton>
         </div>
       </form>

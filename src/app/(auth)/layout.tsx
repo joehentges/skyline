@@ -3,7 +3,9 @@ import { redirect } from "next/navigation"
 import { CommandIcon } from "lucide-react"
 
 import { AFTER_SIGN_IN_URL } from "@/config"
+import { siteConfig } from "@/config/site"
 import { getCurrentUser } from "@/lib/session"
+import { Logo } from "@/components/logo"
 
 export default async function AuthLayout({
   children,
@@ -19,23 +21,18 @@ export default async function AuthLayout({
   return (
     <div className="flex">
       <div className="bg-muted-foreground/20 hidden w-3/5 p-10 md:block">
-        <Link href="/" className="flex w-fit items-center gap-x-1">
-          <CommandIcon />
-          <p className="font-header text-lg font-medium">PENDULEM</p>
+        <Link href="/" className="inline-block">
+          <Logo />
         </Link>
       </div>
 
       <main className="flex min-h-screen w-full items-center justify-center">
         <div className="w-full max-w-128 p-4">
-          <Link
-            href="/"
-            className="flex items-center justify-center gap-x-1 md:hidden"
-          >
-            <CommandIcon />
-            <p className="text-lg font-medium">
-              upload<span className="text-primary">thing</span>
-            </p>
-          </Link>
+          <div className="flex justify-center md:hidden">
+            <Link href="/">
+              <Logo />
+            </Link>
+          </div>
           {children}
         </div>
       </main>

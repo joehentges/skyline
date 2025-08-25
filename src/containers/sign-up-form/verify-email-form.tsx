@@ -17,6 +17,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
 import {
   InputOTP,
   InputOTPGroup,
@@ -31,11 +32,10 @@ import { verifyEmailFormSchema } from "./validation"
 interface VerifyEmailFormProps {
   onVerifyEmailFormSubmit: () => void
   email: string
-  initialOtpSecret: string
 }
 
 export function VerifyEmailForm(props: VerifyEmailFormProps) {
-  const { onVerifyEmailFormSubmit, email, initialOtpSecret } = props
+  const { onVerifyEmailFormSubmit, email } = props
 
   const [canResend, setCanResend] = useState<boolean>(false)
   const [seconds, setSeconds] = useState<number>(60)
@@ -43,7 +43,7 @@ export function VerifyEmailForm(props: VerifyEmailFormProps) {
   const form = useForm<z.infer<typeof verifyEmailFormSchema>>({
     resolver: zodResolver(verifyEmailFormSchema),
     defaultValues: {
-      otpSecret: initialOtpSecret,
+      email,
       token: "",
     },
   })
@@ -56,13 +56,13 @@ export function VerifyEmailForm(props: VerifyEmailFormProps) {
           description: error.serverError,
         })
       },
-      onSuccess() {
+      onSuccess({ data }) {
         onVerifyEmailFormSubmit()
         toast.success("Email verification!", {
           description: (
             <p>
-              We successfully verified your <b className="font-bold">{email}</b>{" "}
-              email address.
+              We successfully verified your{" "}
+              <b className="font-bold">{data.email}</b> email address.
             </p>
           ),
         })
@@ -83,12 +83,11 @@ export function VerifyEmailForm(props: VerifyEmailFormProps) {
     },
     onSuccess({ data }) {
       setCanResend(false)
-      form.setValue("otpSecret", data.otpSecret)
       toast.success("Email verification code sent!", {
         description: (
           <p>
-            Check your email <b className="font-bold">{email}</b> and enter the
-            code.
+            Check your email <b className="font-bold">{data.email}</b> and enter
+            the code.
           </p>
         ),
       })
@@ -136,6 +135,12 @@ export function VerifyEmailForm(props: VerifyEmailFormProps) {
             </AlertDescription>
           </Alert>
         )}
+
+        <Input
+          disabled
+          value={email}
+          className="w-[265px] place-self-center text-center"
+        />
 
         <FormField
           control={form.control}

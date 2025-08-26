@@ -11,6 +11,7 @@ export const env = createEnv({
     RESEND_EMAIL_FROM: z.string().min(1),
     CLOUDFLARE_TURNSTILE_SECRET_KEY: z.string().min(1).optional(),
     STRIPE_SECRET_KEY: z.string().min(1),
+    STRIPE_WEBHOOK_SECRET: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_ROOT_DOMAIN: z.string().min(1),
@@ -27,6 +28,7 @@ export const env = createEnv({
     CLOUDFLARE_TURNSTILE_SECRET_KEY:
       process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
     NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY:
       process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY,

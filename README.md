@@ -2,6 +2,12 @@
 
 #### Getting Started
 
+##### Requirements
+
+- Stripe CLI
+- Docker
+- Docker Compose
+
 First, create and modify your `.env` file. Note: the `.env.exmaple` file. _Note, `DATABASE_URL` and `REDIS_URL` point to local docker containers._
 
 ```bash
@@ -16,6 +22,7 @@ CLOUDFLARE_TURNSTILE_SECRET_KEY=0x4AAAAAAA-XXXXXXXXXXXXXXXXXXXXXXXX
 NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY=0x4AAAAAAA-XXXXXXXXXXXXX
 STRIPE_SECRET_KEY=sk_XXXX_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_XXXX_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+STRIPE_WEBHOOK_SECRET=we_XXXXXXXXXXXXXXXXXXXXXXXX
 ```
 
 Next, run the following commands to start the server (docker compose commands optional):
@@ -32,6 +39,12 @@ npm run db:migrate
 npm run db:seed
 
 npm run dev
+```
+
+Enable Stripe Webhooks for local development
+
+```bash
+stripe listen --events checkout.session.completed,customer.subscription.updated  --forward-to http://localhost:3000/api/stripe/webhooks
 ```
 
 Open the app at [http://localhost:3000](http://localhost:3000)

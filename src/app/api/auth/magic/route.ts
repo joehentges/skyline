@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from "next/server"
 import { eq } from "drizzle-orm"
 
 import { AFTER_SIGN_IN_URL, REDIS_PREFIX, SIGN_IN_URL } from "@/config"
@@ -9,14 +10,14 @@ import { getCurrentUser, setSession } from "@/lib/session"
 
 export const dynamic = "force-dynamic"
 
-export async function GET(request: Request): Promise<Response> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     await rateLimitByIp({ key: "magic-token", limit: 5, window: 60000 })
 
     const existingSession = await getCurrentUser()
 
     if (existingSession) {
-      return new Response(null, {
+      return new NextResponse(null, {
         status: 302,
         headers: {
           Location: AFTER_SIGN_IN_URL,
@@ -28,7 +29,7 @@ export async function GET(request: Request): Promise<Response> {
     const token = url.searchParams.get("token")
 
     if (!token) {
-      return new Response(null, {
+      return new NextResponse(null, {
         status: 302,
         headers: {
           Location: SIGN_IN_URL,
@@ -59,7 +60,7 @@ export async function GET(request: Request): Promise<Response> {
     })
 
     if (!existingUser) {
-      return new Response(null, {
+      return new NextResponse(null, {
         status: 302,
         headers: {
           Location: "/sign-up",
@@ -79,7 +80,7 @@ export async function GET(request: Request): Promise<Response> {
 
     await redis.del(`${REDIS_PREFIX.MAGIC_SIGN_IN}:${token}`)
 
-    return new Response(null, {
+    return new NextResponse(null, {
       status: 302,
       headers: {
         Location: AFTER_SIGN_IN_URL,
@@ -88,7 +89,7 @@ export async function GET(request: Request): Promise<Response> {
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("api/auth/magic - error", error)
-    return new Response(null, {
+    return new NextResponse(null, {
       status: 302,
       headers: {
         Location: "/sign-in/magic/error",

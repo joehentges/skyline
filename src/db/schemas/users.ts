@@ -1,12 +1,5 @@
 import { createId } from "@paralleldrive/cuid2"
-import { boolean, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core"
-
-export const subscriptionStatuses = pgEnum("subscription_statuses", [
-  "active",
-  "inactive",
-])
-export type SubscriptionStatus =
-  (typeof subscriptionStatuses.enumValues)[number]
+import { pgTable, text, timestamp } from "drizzle-orm/pg-core"
 
 export const usersTable = pgTable("users", {
   id: text("id")
@@ -21,16 +14,6 @@ export const usersTable = pgTable("users", {
     .defaultNow()
     .$onUpdateFn(() => new Date()),
   signUpIpAddress: text("sign_up_ip_address"),
-  // stripe
-  stripeCustomerId: text("stripe_customer_id").unique(),
-  stripeSubscriptionId: text("stripe_subscription_id").unique(),
-  subscriptionStatus: subscriptionStatuses("subscription_status"),
-  subscriptionCancelled: boolean("subscription_canclled"),
-  subscriptionPeriodEnd: timestamp("subscription_period_end", { mode: "date" }),
-  lastSubscriptionRenewalDate: timestamp("last_subscription_renewal_date", {
-    mode: "date",
-  }),
-  subscriptionPriceId: text("subscription_price_id"),
   // auth
   email: text("email").notNull(),
   emailVerified: timestamp("email_verified", { mode: "date" }),

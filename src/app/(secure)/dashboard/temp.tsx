@@ -11,7 +11,7 @@ export function TempButton() {
   const { user } = useUserContext()
   const [isPending, setIsPending] = useState<boolean>(false)
 
-  if (user.stripeCustomerId && user.subscriptionStatus === "active") {
+  if (user.subscription.status === "active") {
     return (
       <LoaderButton
         isLoading={isPending}
@@ -30,7 +30,7 @@ export function TempButton() {
       isLoading={isPending}
       onClick={() => {
         setIsPending(true)
-        onCheckoutClicked(user)
+        onCheckoutClicked(user, "price_1S06yRDVAP63KtqVljm9ceuY")
       }}
     >
       checkout

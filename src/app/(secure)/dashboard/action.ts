@@ -1,56 +1,69 @@
 "use server"
 
 import { redirect } from "next/navigation"
+import { eq } from "drizzle-orm"
 
 import { env } from "@/env"
+import { database } from "@/db"
+import { userSubscriptionsTable } from "@/db/schemas"
+import { CacheSession } from "@/cache-session"
 import { stripe } from "@/client/stripe"
 
-export async function onCheckoutClicked({
-  email,
-  id: userId,
-}: {
-  email: string
-  id: string
-}) {
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    success_url: `${env.HOST_NAME}/dashboard`,
-    cancel_url: `${env.HOST_NAME}/dashboard`,
-    customer_email: email,
-    line_items: [
-      {
-        price: "price_1S06yRDVAP63KtqVljm9ceuY",
-        quantity: 1,
-      },
-    ],
-    metadata: {
-      userId,
-    },
-  })
-
-  if (!session?.url) {
-    throw new Error("Unable to create session")
+export async function onCheckoutClicked(
+  { id: userId, subscription: { customerId } }: CacheSession["user"],
+  priceId: string
+) {
+  const userSubscription =
+    await database.query.userSubscriptionsTable.findFirst({
+      where: eq(userSubscriptionsTable.userId, userId),
+    })
+  if (userSubscription?.status === "active") {
+    throw new Error("You already have an active subscription")
   }
-  redirect(session.url)
+
+  let session
+  try {
+    session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      mode: "subscription",
+      success_url: `${env.HOST_NAME}/success?stripe_session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${env.HOST_NAME}/dashboard`,
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      subscription_data: {
+        metadata: {
+          userId: userId,
+        },
+      },
+      allow_promotion_codes: true,
+    })
+  } catch (error: any) {
+    console.error("Error creating checkout session", error)
+    throw new Error(
+      "Failed to create checkout session. Please refresh and try again."
+    )
+  }
+  redirect(session.url!)
 }
 
 export async function onManageSubscriptionClicked({
-  stripeCustomerId,
-}: {
-  stripeCustomerId: string | null
-}) {
-  if (!stripeCustomerId) {
-    throw new Error("Unable to create session")
+  subscription: { customerId },
+}: CacheSession["user"]) {
+  let session
+  try {
+    session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${env.HOST_NAME}/dashboard`,
+    })
+  } catch (error: any) {
+    console.error("Error creating billing portal session", error)
+    throw new Error(
+      "Failed to create billing portal session. Please refresh and try again."
+    )
   }
-
-  const session = await stripe.billingPortal.sessions.create({
-    customer: stripeCustomerId,
-    return_url: `${env.HOST_NAME}/dashboard`,
-  })
-
-  if (!session?.url) {
-    throw new Error("Unable to create session")
-  }
-
-  redirect(session.url)
+  redirect(session.url!)
 }

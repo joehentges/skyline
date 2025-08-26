@@ -8,7 +8,7 @@ import { eq } from "drizzle-orm"
 import { env } from "@/env"
 import { AFTER_SIGN_IN_URL, REDIS_PREFIX, TOKEN_TTL } from "@/config"
 import { database } from "@/db"
-import { usersTable } from "@/db/schemas"
+import { usersTable, userSubscriptionsTable } from "@/db/schemas"
 import { redis } from "@/client/redis"
 import { stripe } from "@/client/stripe"
 import { getIp } from "@/lib/get-ip"
@@ -126,27 +126,38 @@ export const signUpAction = unauthenticatedAction
 
     const signUpIpAddress = await getIp()
 
-    const stripeCustomer = await stripe.customers.create({
-      email: parsedInput.email,
-      name: `${parsedInput.firstName} ${parsedInput.lastName}`,
-      metadata: {
-        signUpIpAddress,
-      },
-    })
+    const user = await database.transaction(async (trx) => {
+      const passwordHash = await argon2.hash(parsedInput.password)
+      const [createdUser] = await trx
+        .insert(usersTable)
+        .values({
+          signUpIpAddress,
+          email: parsedInput.email,
+          emailVerified: new Date(),
+          passwordHash,
+          firstName: parsedInput.firstName,
+          lastName: parsedInput.lastName,
+        })
+        .returning()
 
-    const passwordHash = await argon2.hash(parsedInput.password)
-    const [user] = await database
-      .insert(usersTable)
-      .values({
-        stripeCustomerId: stripeCustomer.id,
-        signUpIpAddress,
+      const stripeCustomer = await stripe.customers.create({
         email: parsedInput.email,
-        emailVerified: new Date(),
-        passwordHash,
-        firstName: parsedInput.firstName,
-        lastName: parsedInput.lastName,
+        name: `${parsedInput.firstName} ${parsedInput.lastName}`,
+        metadata: {
+          signUpIpAddress,
+        },
       })
-      .returning()
+
+      await trx
+        .insert(userSubscriptionsTable)
+        .values({
+          userId: createdUser.id,
+          customerId: stripeCustomer.id,
+        })
+        .returning()
+
+      return createdUser
+    })
 
     await setSession(user.id, "password")
 

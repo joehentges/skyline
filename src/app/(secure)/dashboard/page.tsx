@@ -1,8 +1,4 @@
-import { redirect } from "next/navigation"
-
-import { env } from "@/env"
 import { getAllSessionsOfUser } from "@/cache-session"
-import { stripe } from "@/client/stripe"
 import { assertAuthenticated } from "@/lib/session"
 
 import { TempButton } from "./temp"

@@ -4,18 +4,15 @@ import { eq } from "drizzle-orm"
 
 import { database } from "@/db"
 import { userSubscriptionsTable } from "@/db/schemas"
-import { assertAuthenticated, getCurrentUser } from "@/lib/session"
+import { assertAuthenticated } from "@/lib/session"
 import { syncDatabaseWithStripe } from "@/lib/sync-database-with-stripe"
 
 export const dynamic = "force-dynamic"
 
-async function triggerStripeSync() {
-  const user = await getCurrentUser()
-  if (!user) return
-
+async function triggerStripeSync(userId: string) {
   const userSubscription =
     await database.query.userSubscriptionsTable.findFirst({
-      where: eq(userSubscriptionsTable.userId, user.id),
+      where: eq(userSubscriptionsTable.userId, userId),
     })
   if (!userSubscription) return
 
@@ -26,7 +23,7 @@ async function ConfirmStripeSession() {
   const user = await assertAuthenticated()
 
   try {
-    await triggerStripeSync()
+    await triggerStripeSync(user.id)
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return <div>Failed to sync with stripe {error.message}</div>

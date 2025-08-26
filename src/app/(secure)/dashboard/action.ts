@@ -41,6 +41,7 @@ export async function onCheckoutClicked(
       },
       allow_promotion_codes: true,
     })
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error creating checkout session", error)
     throw new Error(
@@ -59,6 +60,7 @@ export async function onManageSubscriptionClicked({
       customer: customerId,
       return_url: `${env.HOST_NAME}/dashboard`,
     })
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error creating billing portal session", error)
     throw new Error(

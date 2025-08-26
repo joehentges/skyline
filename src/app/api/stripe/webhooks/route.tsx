@@ -1,11 +1,8 @@
 import { headers as nextHeaders } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
-import { eq } from "drizzle-orm"
 import Stripe from "stripe"
 
 import { env } from "@/env"
-import { database } from "@/db"
-import { userSubscriptionsTable } from "@/db/schemas"
 import { updateAllSessionsOfUser } from "@/cache-session"
 import { stripe } from "@/client/stripe"
 import { syncDatabaseWithStripe } from "@/lib/sync-database-with-stripe"

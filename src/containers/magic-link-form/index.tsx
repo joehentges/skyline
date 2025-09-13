@@ -74,7 +74,7 @@ export function MagicLinkForm() {
                 <Input
                   {...field}
                   className="w-full"
-                  placeholder="Enter your email address"
+                  placeholder="jsmith@email.com"
                   type="email"
                 />
               </FormControl>

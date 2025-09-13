@@ -73,7 +73,7 @@ export function SignInForm() {
                 <Input
                   {...field}
                   className="w-full"
-                  placeholder="Enter your email address"
+                  placeholder="jsmith@email.com"
                   type="email"
                 />
               </FormControl>
@@ -92,7 +92,7 @@ export function SignInForm() {
                 <Input
                   {...field}
                   className="w-full"
-                  placeholder="Enter your password"
+                  placeholder="••••••••••"
                   type="password"
                 />
               </FormControl>

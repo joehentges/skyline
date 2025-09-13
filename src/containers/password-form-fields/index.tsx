@@ -59,7 +59,7 @@ export function PasswordFormFields<
               <Input
                 {...field}
                 className="w-full"
-                placeholder="Enter your password"
+                placeholder="••••••••••"
                 type="password"
               />
             </FormControl>
@@ -103,7 +103,7 @@ export function PasswordFormFields<
               <Input
                 {...field}
                 className="w-full"
-                placeholder="Confirm your password"
+                placeholder="••••••••••"
                 type="password"
               />
             </FormControl>

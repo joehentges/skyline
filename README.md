@@ -34,7 +34,7 @@ STRIPE_PRICE_ID=price_XXXXXXXXXXXXXXXXXXX
 Next, run the following commands to start the server (docker compose commands optional):
 
 ```bash
-docker compose build
+docker compose create
 
 docker compose start
 

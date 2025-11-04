@@ -11,13 +11,13 @@ import { TailwindIndicator } from "@/components/tailwind-indicator"
 
 const fontBase = Inter({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-base",
 })
 
 const fontHeader = Roboto({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-header",
 })
 

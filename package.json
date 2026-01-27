@@ -51,7 +51,7 @@
     "stripe": "19.3.0",
     "tailwind-merge": "3.3.1",
     "tailwindcss-animate": "1.0.7",
-    "zod": "4.1.8"
+    "zod": "4.1.13"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "4.7.0",

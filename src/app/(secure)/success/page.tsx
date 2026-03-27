@@ -26,9 +26,9 @@ async function ConfirmStripeSession() {
 
   try {
     await triggerStripeSync(user.id);
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    return <div>Failed to sync with stripe {error.message}</div>;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return <div>Failed to sync with stripe {message}</div>;
   }
 
   redirect("/dashboard");

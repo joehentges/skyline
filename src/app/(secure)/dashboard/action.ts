@@ -2,6 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import type Stripe from "stripe";
 import type { CacheSession } from "@/cache-session";
 import { stripe } from "@/client/stripe";
 import { database } from "@/db";
@@ -20,7 +21,7 @@ export async function onCheckoutClicked(
     throw new Error("You already have an active subscription");
   }
 
-  let session;
+  let session: Stripe.Checkout.Session;
   try {
     session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -40,31 +41,35 @@ export async function onCheckoutClicked(
       },
       allow_promotion_codes: true,
     });
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating checkout session", error);
     throw new Error(
       "Failed to create checkout session. Please refresh and try again."
     );
   }
-  redirect(session.url!);
+  if (!session.url) {
+    throw new Error("Checkout session did not return a URL.");
+  }
+  redirect(session.url);
 }
 
 export async function onManageSubscriptionClicked({
   subscription: { customerId },
 }: CacheSession["user"]) {
-  let session;
+  let session: Stripe.BillingPortal.Session;
   try {
     session = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: `${env.HOST_NAME}/dashboard`,
     });
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating billing portal session", error);
     throw new Error(
       "Failed to create billing portal session. Please refresh and try again."
     );
   }
-  redirect(session.url!);
+  if (!session.url) {
+    throw new Error("Billing portal session did not return a URL.");
+  }
+  redirect(session.url);
 }

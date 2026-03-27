@@ -1,7 +1,7 @@
-type Link = {
-  label: string;
+interface Link {
   href: string;
-};
+  label: string;
+}
 
 type UserNav = Link & {
   mobileOnly?: boolean;

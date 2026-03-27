@@ -4,9 +4,9 @@ import { createContext, useContext } from "react";
 
 import type { CacheSession } from "@/cache-session";
 
-export type UserDetails = {
+export interface UserDetails {
   user: CacheSession["user"];
-};
+}
 
 const Context = createContext<UserDetails | undefined>(undefined);
 Context.displayName = "UserContext";

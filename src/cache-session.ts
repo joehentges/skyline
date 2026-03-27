@@ -141,7 +141,11 @@ export async function deleteCacheSession(
 export async function getAllSessionsOfUser(userId: string) {
   const keys = await redis.keys(`${getSessionKey(userId, "")}*`);
 
-  const sessions = [];
+  const sessions: Array<{
+    key: string;
+    absoluteExpiration: Date | undefined;
+    session: CacheSession;
+  }> = [];
   for (const key of keys) {
     const ttl = await redis.ttl(key);
     const session = await redis.get(key);

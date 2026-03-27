@@ -1,5 +1,10 @@
 import z from "zod";
 
+const LOWERCASE_REGEX = /[a-z]/;
+const UPPERCASE_REGEX = /[A-Z]/;
+const DIGIT_REGEX = /\d/;
+const SPECIAL_CHAR_REGEX = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
+
 export const commonlyUsedPasswords = [
   "Password!",
   "Qwerty123!",
@@ -9,10 +14,10 @@ export const commonlyUsedPasswords = [
 ];
 
 function meetsPasswordComplexityRequirements(password: string) {
-  const containsLowercase = /[a-z]/.test(password);
-  const containsUppercase = /[A-Z]/.test(password);
-  const containsNumber = /\d/.test(password);
-  const containsSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
+  const containsLowercase = LOWERCASE_REGEX.test(password);
+  const containsUppercase = UPPERCASE_REGEX.test(password);
+  const containsNumber = DIGIT_REGEX.test(password);
+  const containsSpecial = SPECIAL_CHAR_REGEX.test(password);
 
   const characterTypes = [
     containsLowercase,

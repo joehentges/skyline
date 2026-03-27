@@ -159,7 +159,7 @@ export async function validateRequest(): Promise<SessionValidationResult | null>
 
   const decoded = decodeSessionCookie(sessionCookie);
 
-  if (!(decoded && decoded.token && decoded.userId)) {
+  if (!(decoded?.token && decoded.userId)) {
     return null;
   }
 

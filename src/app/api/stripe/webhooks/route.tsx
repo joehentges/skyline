@@ -49,10 +49,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       signature,
       env.STRIPE_WEBHOOK_SECRET
     );
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-    console.error(`Webhook signature verification failed. ${err.message}`);
-    return NextResponse.json({ error: err.message }, { status: 400 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`Webhook signature verification failed. ${message}`);
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
   try {
@@ -63,8 +63,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json({ message: "success" });
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("api/webhooks/stripe - error", error);
     return new NextResponse(null, {
       status: 500,
@@ -78,7 +77,7 @@ export const config = {
   },
 };
 
-async function processEvent(event: Stripe.Event) {
+function processEvent(event: Stripe.Event) {
   if (allowedEvents.includes(event.type)) {
     const { customer: customerId } = event?.data?.object as {
       customer: string;

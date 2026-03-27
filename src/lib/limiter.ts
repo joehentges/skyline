@@ -2,10 +2,10 @@ import { redis } from "@/client/redis";
 
 import { getIp } from "./get-ip";
 
-type Tracker = {
+interface Tracker {
   count: number;
   expiresAt: number;
-};
+}
 
 export async function rateLimitByIp({
   key = "global",

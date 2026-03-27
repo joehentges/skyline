@@ -1,12 +1,12 @@
-type SiteConfig = {
-  name: string;
+interface SiteConfig {
   description: string;
-  url: string;
-  ogImage: string;
   links: {
     github: string;
   };
-};
+  name: string;
+  ogImage: string;
+  url: string;
+}
 
 export const siteConfig: SiteConfig = {
   name: "Boilerplate",

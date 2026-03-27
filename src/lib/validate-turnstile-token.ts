@@ -6,7 +6,10 @@ interface TurnstileResponse {
 }
 
 export async function validateTurnstileToken(token: string) {
-  if (!env.CLOUDFLARE_TURNSTILE_SECRET_KEY) {
+  if (
+    !env.CLOUDFLARE_TURNSTILE_SECRET_KEY ||
+    env.NEXT_PUBLIC_DISABLE_TURNSTILE
+  ) {
     return true;
   }
 

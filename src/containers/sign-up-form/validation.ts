@@ -29,9 +29,11 @@ export const verifyEmailFormSchema = z.object({
 export const reviewAndPasswordFormSchema = z
   .object({
     ...passwordFormSchema.shape,
-    captchaToken: env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY
-      ? z.string().min(1, "Please complete the captcha")
-      : z.string().optional(),
+    captchaToken:
+      !env.NEXT_PUBLIC_DISABLE_TURNSTILE &&
+      env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY
+        ? z.string().min(1, "Please complete the captcha")
+        : z.string().optional(),
   })
   .superRefine(passwordFormSchemaSuperRefine);
 

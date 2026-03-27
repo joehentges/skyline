@@ -9,7 +9,7 @@ import { LoaderButton } from "@/components/loader-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Form } from "@/components/ui/form";
 import { PasswordFormFields } from "@/containers/password-form-fields";
-
+import { env } from "@/env";
 import { reviewAndPasswordFormSchema } from "./validation";
 
 interface ReviewAndPasswordFormProps {
@@ -42,10 +42,12 @@ export function ReviewAndPasswordForm(props: ReviewAndPasswordFormProps) {
 
         <PasswordFormFields form={form} />
 
-        <Captcha
-          onSuccess={(token) => form.setValue("captchaToken", token)}
-          validationerror={form.formState.errors.captchaToken?.message}
-        />
+        {!env.NEXT_PUBLIC_DISABLE_TURNSTILE && (
+          <Captcha
+            onSuccess={(token) => form.setValue("captchaToken", token)}
+            validationerror={form.formState.errors.captchaToken?.message}
+          />
+        )}
 
         <div className="pt-2">
           <LoaderButton

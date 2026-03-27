@@ -11,7 +11,7 @@ async function sendEmail(
   subject: string,
   body: React.ReactNode
 ) {
-  if (env.NODE_ENV !== "production") {
+  if (env.DISABLE_EMAIL) {
     return;
   }
 
@@ -28,32 +28,40 @@ async function sendEmail(
 }
 
 export async function sendVerifyEmail(email: string, token: string) {
-  console.log(`OTP email verification sent to: ${email} with token: ${token}`);
   await sendEmail(
     email,
     `Verify your email for ${siteConfig.name}`,
     <VerifyEmail token={token} />
   );
+  if (env.DISABLE_EMAIL) {
+    console.log(
+      `OTP email verification sent to: ${email} with token: ${token}`
+    );
+  }
 }
 
 export async function sendResetPasswordEmail(email: string, token: string) {
-  const href = `${env.HOST_NAME}/reset-password?token=${token}`;
-  console.log(
-    `Password reset link sign in sent to: ${email} with link: ${href}`
-  );
+  const href = `${env.VERCEL_URL}/reset-password?token=${token}`;
   await sendEmail(
     email,
     `Your password reset link for ${siteConfig.name}`,
-    <ResetPasswordEmail href={token} />
+    <ResetPasswordEmail href={href} />
   );
+  if (env.DISABLE_EMAIL) {
+    console.log(
+      `Password reset link sign in sent to: ${email} with link: ${href}`
+    );
+  }
 }
 
 export async function sendMagicLinkEmail(email: string, token: string) {
-  const href = `${env.HOST_NAME}/api/auth/magic?token=${token}`;
-  console.log(`Magic link sign in sent to: ${email} with link: ${href}`);
+  const href = `${env.VERCEL_URL}/api/auth/magic?token=${token}`;
   await sendEmail(
     email,
     `Your magic link link for ${siteConfig.name}`,
     <MagicLinkEmail href={href} />
   );
+  if (env.DISABLE_EMAIL) {
+    console.log(`Magic link sign in sent to: ${email} with link: ${href}`);
+  }
 }

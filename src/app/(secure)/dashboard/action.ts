@@ -26,8 +26,8 @@ export async function onCheckoutClicked(
     session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
-      success_url: `${env.HOST_NAME}/success?stripe_session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${env.HOST_NAME}/dashboard`,
+      success_url: `${env.VERCEL_URL}/success?stripe_session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${env.VERCEL_URL}/dashboard`,
       line_items: [
         {
           price: priceId,
@@ -60,7 +60,7 @@ export async function onManageSubscriptionClicked({
   try {
     session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${env.HOST_NAME}/dashboard`,
+      return_url: `${env.VERCEL_URL}/dashboard`,
     });
   } catch (error: unknown) {
     console.error("Error creating billing portal session", error);

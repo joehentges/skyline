@@ -1,48 +1,50 @@
-import { Suspense } from "react"
-import { redirect } from "next/navigation"
-import { eq } from "drizzle-orm"
+import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
-import { database } from "@/db"
-import { userSubscriptionsTable } from "@/db/schemas"
-import { assertAuthenticated } from "@/lib/session"
-import { syncDatabaseWithStripe } from "@/lib/sync-database-with-stripe"
+import { database } from "@/db";
+import { userSubscriptionsTable } from "@/db/schemas";
+import { assertAuthenticated } from "@/lib/session";
+import { syncDatabaseWithStripe } from "@/lib/sync-database-with-stripe";
 
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
 async function triggerStripeSync(userId: string) {
   const userSubscription =
     await database.query.userSubscriptionsTable.findFirst({
       where: eq(userSubscriptionsTable.userId, userId),
-    })
-  if (!userSubscription) return
+    });
+  if (!userSubscription) {
+    return;
+  }
 
-  return syncDatabaseWithStripe(userSubscription?.customerId)
+  return syncDatabaseWithStripe(userSubscription?.customerId);
 }
 
 async function ConfirmStripeSession() {
-  const user = await assertAuthenticated()
+  const user = await assertAuthenticated();
 
   try {
-    await triggerStripeSync(user.id)
+    await triggerStripeSync(user.id);
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    return <div>Failed to sync with stripe {error.message}</div>
+    return <div>Failed to sync with stripe {error.message}</div>;
   }
 
-  redirect("/dashboard")
+  redirect("/dashboard");
 }
 
 interface SuccessPageProps {
   searchParams: Promise<{
-    stripe_session_id: string | undefined
-  }>
+    stripe_session_id: string | undefined;
+  }>;
 }
 
 export default async function SuccessPage(props: SuccessPageProps) {
-  const { searchParams } = props
-  const { stripe_session_id } = await searchParams
+  const { searchParams } = props;
+  const { stripe_session_id } = await searchParams;
 
-  console.log(`[stripe/success] Checkout sesion id: ${stripe_session_id}`)
+  console.log(`[stripe/success] Checkout sesion id: ${stripe_session_id}`);
 
   return (
     <div className="flex min-h-screen items-center justify-center text-xl">
@@ -50,5 +52,5 @@ export default async function SuccessPage(props: SuccessPageProps) {
         <ConfirmStripeSession />
       </Suspense>
     </div>
-  )
+  );
 }

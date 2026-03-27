@@ -1,8 +1,8 @@
-import React from "react"
-import { CommandIcon } from "lucide-react"
+import { CommandIcon } from "lucide-react";
+import React from "react";
 
-import { siteConfig } from "@/config/site"
-import { cn } from "@/lib/utils"
+import { siteConfig } from "@/config/site";
+import { cn } from "@/lib/utils";
 
 export const Logo = React.forwardRef<
   HTMLDivElement,
@@ -10,15 +10,15 @@ export const Logo = React.forwardRef<
 >(({ className, ...props }, ref) => {
   return (
     <div
-      ref={ref}
       className={cn("flex w-fit items-center gap-x-1", className)}
+      ref={ref}
       {...props}
     >
       <CommandIcon />
-      <p className="font-header text-lg font-medium uppercase">
+      <p className="font-header font-medium text-lg uppercase">
         {siteConfig.name}
       </p>
     </div>
-  )
-})
-Logo.displayName = "Logo"
+  );
+});
+Logo.displayName = "Logo";

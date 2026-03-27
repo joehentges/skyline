@@ -1,31 +1,31 @@
-"use client"
+"use client";
 
-import { createContext, useContext } from "react"
+import { createContext, useContext } from "react";
 
-import { CacheSession } from "@/cache-session"
+import type { CacheSession } from "@/cache-session";
 
 export type UserDetails = {
-  user: CacheSession["user"]
-}
+  user: CacheSession["user"];
+};
 
-const Context = createContext<UserDetails | undefined>(undefined)
-Context.displayName = "UserContext"
+const Context = createContext<UserDetails | undefined>(undefined);
+Context.displayName = "UserContext";
 
 export function useUserContext() {
-  const context = useContext(Context)
+  const context = useContext(Context);
   if (!context) {
-    throw new Error("UserContext is not available")
+    throw new Error("UserContext is not available");
   }
-  return context
+  return context;
 }
 
 interface UserContextProviderProps {
-  user: CacheSession["user"]
-  children: React.ReactNode
+  children: React.ReactNode;
+  user: CacheSession["user"];
 }
 
 export function UserContextProvider(props: UserContextProviderProps) {
-  const { user, children } = props
+  const { user, children } = props;
 
-  return <Context.Provider value={{ user }}>{children}</Context.Provider>
+  return <Context.Provider value={{ user }}>{children}</Context.Provider>;
 }

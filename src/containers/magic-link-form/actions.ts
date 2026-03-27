@@ -1,14 +1,13 @@
-"use server"
+"use server";
 
-import { createId } from "@paralleldrive/cuid2"
+import { createId } from "@paralleldrive/cuid2";
+import { redis } from "@/client/redis";
+import { REDIS_PREFIX, TOKEN_TTL } from "@/config";
+import { rateLimitByKey } from "@/lib/limiter";
+import { unauthenticatedAction } from "@/lib/safe-action";
+import { sendMagicLinkEmail } from "@/lib/send-email";
 
-import { REDIS_PREFIX, TOKEN_TTL } from "@/config"
-import { redis } from "@/client/redis"
-import { rateLimitByKey } from "@/lib/limiter"
-import { unauthenticatedAction } from "@/lib/safe-action"
-import { sendMagicLinkEmail } from "@/lib/send-email"
-
-import { magicLinkFormSchema } from "./validation"
+import { magicLinkFormSchema } from "./validation";
 
 export const sendMagicLinkAction = unauthenticatedAction
   .inputSchema(magicLinkFormSchema)
@@ -16,11 +15,11 @@ export const sendMagicLinkAction = unauthenticatedAction
     await rateLimitByKey({
       key: `${parsedInput.email}-send-magic-link`,
       limit: 3,
-      window: 10000,
-    })
+      window: 10_000,
+    });
 
-    const magicLinkToken = createId()
-    const expiresAt = new Date(Date.now() + TOKEN_TTL.MAGIC_LINK_EMAIL)
+    const magicLinkToken = createId();
+    const expiresAt = new Date(Date.now() + TOKEN_TTL.MAGIC_LINK_EMAIL);
 
     // Save verification token in KV with expiration
     await redis.set(
@@ -31,7 +30,7 @@ export const sendMagicLinkAction = unauthenticatedAction
       }),
       "EX",
       Math.floor((expiresAt.getTime() - Date.now()) / 1000)
-    )
+    );
 
-    await sendMagicLinkEmail(parsedInput.email, magicLinkToken)
-  })
+    await sendMagicLinkEmail(parsedInput.email, magicLinkToken);
+  });

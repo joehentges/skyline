@@ -1,9 +1,9 @@
-import "server-only"
+import "server-only";
 
-import { headers } from "next/headers"
+import { headers } from "next/headers";
 
 export async function getIp() {
-  const headersList = await headers()
+  const headersList = await headers();
 
   const ip =
     headersList.get("cf-connecting-ip") ||
@@ -12,11 +12,11 @@ export async function getIp() {
     headersList.get("true-client-ip") ||
     headersList.get("x-client-ip") ||
     headersList.get("x-cluster-client-ip") ||
-    null
+    null;
 
   if (!ip) {
-    return null
+    return null;
   }
 
-  return ip
+  return ip;
 }

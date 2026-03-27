@@ -1,25 +1,24 @@
-import Link from "next/link"
-import { redirect } from "next/navigation"
-
-import { AFTER_SIGN_IN_URL } from "@/config"
-import { getCurrentUser } from "@/lib/session"
-import { Logo } from "@/components/logo"
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Logo } from "@/components/logo";
+import { AFTER_SIGN_IN_URL } from "@/config";
+import { getCurrentUser } from "@/lib/session";
 
 export default async function AuthLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const user = await getCurrentUser()
+  const user = await getCurrentUser();
 
   if (user) {
-    redirect(AFTER_SIGN_IN_URL)
+    redirect(AFTER_SIGN_IN_URL);
   }
 
   return (
     <div className="flex">
-      <div className="bg-muted-foreground/20 hidden w-3/5 p-10 md:block">
-        <Link href="/" className="inline-block">
+      <div className="hidden w-3/5 bg-muted-foreground/20 p-10 md:block">
+        <Link className="inline-block" href="/">
           <Logo />
         </Link>
       </div>
@@ -35,5 +34,5 @@ export default async function AuthLayout({
         </div>
       </main>
     </div>
-  )
+  );
 }

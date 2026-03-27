@@ -1,11 +1,8 @@
-"use server"
+"use server";
 
-import { cache } from "react"
-import { cookies as nextCookies } from "next/headers"
-import { redirect } from "next/navigation"
-
-import { SIGN_IN_URL } from "@/config"
-import { User } from "@/db/schemas"
+import { cookies as nextCookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { cache } from "react";
 import {
   createSession,
   deleteSessionTokenCookie,
@@ -13,39 +10,45 @@ import {
   invalidateSession,
   setSessionTokenCookie,
   validateRequest,
-} from "@/auth"
-import { CreateCacheSessionParams } from "@/cache-session"
+} from "@/auth";
+import type { CreateCacheSessionParams } from "@/cache-session";
+import { SIGN_IN_URL } from "@/config";
+import type { User } from "@/db/schemas";
 
 export const getCurrentUser = cache(async () => {
-  const session = await validateRequest()
-  if (!session || !session.user) {
-    return undefined
+  const session = await validateRequest();
+  if (!(session && session.user)) {
+    return undefined;
   }
-  return session.user
-})
+  return session.user;
+});
 
 export const assertAuthenticated = async () => {
-  const user = await getCurrentUser()
+  const user = await getCurrentUser();
   if (!user) {
-    redirect(SIGN_IN_URL)
+    redirect(SIGN_IN_URL);
   }
-  return user
-}
+  return user;
+};
 
 export async function setSession(
   userId: User["id"],
   authenticationType: CreateCacheSessionParams["authenticationType"]
 ) {
-  const sessionToken = generateSessionToken()
-  const session = await createSession(sessionToken, userId, authenticationType)
-  await setSessionTokenCookie(sessionToken, userId, new Date(session.expiresAt))
+  const sessionToken = generateSessionToken();
+  const session = await createSession(sessionToken, userId, authenticationType);
+  await setSessionTokenCookie(
+    sessionToken,
+    userId,
+    new Date(session.expiresAt)
+  );
 }
 
 export async function clearSession(userId: User["id"]) {
-  const cookies = await nextCookies()
-  const sessionId = cookies.get("session")?.value ?? null
+  const cookies = await nextCookies();
+  const sessionId = cookies.get("session")?.value ?? null;
   if (sessionId) {
-    await invalidateSession(sessionId, userId)
+    await invalidateSession(sessionId, userId);
   }
-  await deleteSessionTokenCookie()
+  await deleteSessionTokenCookie();
 }

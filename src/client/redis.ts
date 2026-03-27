@@ -1,10 +1,10 @@
-import Redis from "ioredis"
+import Redis from "ioredis";
 
-import { env } from "@/env"
+import { env } from "@/env";
 
 export const redis = new Redis(env.REDIS_URL, {
   connectTimeout: 1000,
   retryStrategy: () => {
-    redis.quit()
+    redis.quit();
   },
-})
+});

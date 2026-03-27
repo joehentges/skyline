@@ -1,17 +1,17 @@
-import { relations } from "drizzle-orm"
+import { relations } from "drizzle-orm";
 
-import { userSubscriptionsTable } from "./user-subscriptions"
-import { usersTable } from "./users"
+import { userSubscriptionsTable } from "./user-subscriptions";
+import { usersTable } from "./users";
 
-export * from "./users"
-export * from "./user-subscriptions"
+export * from "./user-subscriptions";
+export * from "./users";
 
 export const usersRelations = relations(usersTable, ({ one }) => ({
   subscription: one(userSubscriptionsTable, {
     fields: [usersTable.id],
     references: [userSubscriptionsTable.userId],
   }),
-}))
+}));
 
 export const userSubscriptionsRelations = relations(
   userSubscriptionsTable,
@@ -21,4 +21,4 @@ export const userSubscriptionsRelations = relations(
       references: [usersTable.id],
     }),
   })
-)
+);

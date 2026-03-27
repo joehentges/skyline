@@ -1,25 +1,25 @@
-import type { Metadata } from "next"
-import { Inter, Roboto } from "next/font/google"
+import type { Metadata } from "next";
+import { Inter, Roboto } from "next/font/google";
 
-import "@/styles/globals.css"
+import "@/styles/globals.css";
 
-import { siteConfig } from "@/config/site"
-import { Providers } from "@/providers"
-import { cn } from "@/lib/utils"
-import { Toaster } from "@/components/ui/sonner"
-import { TailwindIndicator } from "@/components/tailwind-indicator"
+import { TailwindIndicator } from "@/components/tailwind-indicator";
+import { Toaster } from "@/components/ui/sonner";
+import { siteConfig } from "@/config/site";
+import { cn } from "@/lib/utils";
+import { Providers } from "@/providers";
 
 const fontBase = Inter({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-base",
-})
+});
 
 const fontHeader = Roboto({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-header",
-})
+});
 
 export const metadata: Metadata = {
   title: {
@@ -56,12 +56,12 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   manifest: `${siteConfig.url}/site.webmanifest`,
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -79,5 +79,5 @@ export default function RootLayout({
         </Providers>
       </body>
     </html>
-  )
+  );
 }

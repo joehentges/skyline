@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Terminal } from "lucide-react"
-import { useAction } from "next-safe-action/hooks"
-import { useForm } from "react-hook-form"
-import { toast } from "sonner"
-import { z } from "zod"
-
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Terminal } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+import { LoaderButton } from "@/components/loader-button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Form,
   FormControl,
@@ -15,12 +15,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { LoaderButton } from "@/components/loader-button"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
-import { sendMagicLinkAction } from "./actions"
-import { magicLinkFormSchema } from "./validation"
+import { sendMagicLinkAction } from "./actions";
+import { magicLinkFormSchema } from "./validation";
 
 export function MagicLinkForm() {
   const form = useForm<z.infer<typeof magicLinkFormSchema>>({
@@ -28,7 +27,7 @@ export function MagicLinkForm() {
     defaultValues: {
       email: "",
     },
-  })
+  });
 
   const { execute, result, isPending, hasErrored } = useAction(
     sendMagicLinkAction,
@@ -36,26 +35,26 @@ export function MagicLinkForm() {
       onError({ error }) {
         toast.error("Something went wrong", {
           description: error.serverError,
-        })
+        });
       },
       onSuccess() {
-        const email = form.getValues("email")
-        form.reset()
+        const email = form.getValues("email");
+        form.reset();
         // store email in localstorage
         toast.success("Email sent!", {
           description: `Your magic link has been sent to ${email}`,
-        })
+        });
       },
     }
-  )
+  );
 
   function onSubmit(values: z.infer<typeof magicLinkFormSchema>) {
-    execute(values)
+    execute(values);
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+      <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
         {hasErrored && (
           <Alert variant="destructive">
             <Terminal className="h-4 w-4" />
@@ -85,15 +84,15 @@ export function MagicLinkForm() {
 
         <div className="pt-2">
           <LoaderButton
-            isLoading={isPending}
             className="w-full"
-            type="submit"
+            isLoading={isPending}
             size="lg"
+            type="submit"
           >
             Send
           </LoaderButton>
         </div>
       </form>
     </Form>
-  )
+  );
 }

@@ -1,12 +1,12 @@
 type SiteConfig = {
-  name: string
-  description: string
-  url: string
-  ogImage: string
+  name: string;
+  description: string;
+  url: string;
+  ogImage: string;
   links: {
-    github: string
-  }
-}
+    github: string;
+  };
+};
 
 export const siteConfig: SiteConfig = {
   name: "Boilerplate",
@@ -17,4 +17,4 @@ export const siteConfig: SiteConfig = {
   links: {
     github: "https://github.com/joehentges",
   },
-}
+};

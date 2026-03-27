@@ -1,13 +1,12 @@
-"use server"
+"use server";
 
-import { redirect } from "next/navigation"
-import { eq } from "drizzle-orm"
-
-import { env } from "@/env"
-import { database } from "@/db"
-import { userSubscriptionsTable } from "@/db/schemas"
-import { CacheSession } from "@/cache-session"
-import { stripe } from "@/client/stripe"
+import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
+import type { CacheSession } from "@/cache-session";
+import { stripe } from "@/client/stripe";
+import { database } from "@/db";
+import { userSubscriptionsTable } from "@/db/schemas";
+import { env } from "@/env";
 
 export async function onCheckoutClicked(
   { id: userId, subscription: { customerId } }: CacheSession["user"],
@@ -16,12 +15,12 @@ export async function onCheckoutClicked(
   const userSubscription =
     await database.query.userSubscriptionsTable.findFirst({
       where: eq(userSubscriptionsTable.userId, userId),
-    })
+    });
   if (userSubscription?.status === "active") {
-    throw new Error("You already have an active subscription")
+    throw new Error("You already have an active subscription");
   }
 
-  let session
+  let session;
   try {
     session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -36,36 +35,36 @@ export async function onCheckoutClicked(
       ],
       subscription_data: {
         metadata: {
-          userId: userId,
+          userId,
         },
       },
       allow_promotion_codes: true,
-    })
+    });
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error("Error creating checkout session", error)
+    console.error("Error creating checkout session", error);
     throw new Error(
       "Failed to create checkout session. Please refresh and try again."
-    )
+    );
   }
-  redirect(session.url!)
+  redirect(session.url!);
 }
 
 export async function onManageSubscriptionClicked({
   subscription: { customerId },
 }: CacheSession["user"]) {
-  let session
+  let session;
   try {
     session = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: `${env.HOST_NAME}/dashboard`,
-    })
+    });
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error("Error creating billing portal session", error)
+    console.error("Error creating billing portal session", error);
     throw new Error(
       "Failed to create billing portal session. Please refresh and try again."
-    )
+    );
   }
-  redirect(session.url!)
+  redirect(session.url!);
 }

@@ -1,14 +1,14 @@
-import "dotenv/config"
+import "dotenv/config";
 
-import argon2 from "argon2"
+import argon2 from "argon2";
 
-import { stripe } from "@/client/stripe"
+import { stripe } from "@/client/stripe";
 
-import { database, pg } from "./index"
-import { usersTable, userSubscriptionsTable } from "./schemas"
+import { database, pg } from "./index";
+import { userSubscriptionsTable, usersTable } from "./schemas";
 
 async function main() {
-  const passwordHash = await argon2.hash("password")
+  const passwordHash = await argon2.hash("password");
   const [user] = await database
     .insert(usersTable)
     .values({
@@ -19,7 +19,7 @@ async function main() {
       firstName: "Seed",
       lastName: "Account",
     })
-    .returning()
+    .returning();
 
   const stripeCustomer = await stripe.customers.create({
     email: user.email,
@@ -27,7 +27,7 @@ async function main() {
     metadata: {
       userId: user.id,
     },
-  })
+  });
 
   await database
     .insert(userSubscriptionsTable)
@@ -35,9 +35,9 @@ async function main() {
       userId: user.id,
       customerId: stripeCustomer.id,
     })
-    .returning()
+    .returning();
 
-  await pg.end()
+  await pg.end();
 }
 
-main()
+main();

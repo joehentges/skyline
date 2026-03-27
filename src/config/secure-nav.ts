@@ -1,18 +1,18 @@
 type Link = {
-  label: string
-  href: string
-}
+  label: string;
+  href: string;
+};
 
 type UserNav = Link & {
-  mobileOnly?: boolean
-}
+  mobileOnly?: boolean;
+};
 
 interface SecureNav {
-  userNav: UserNav[]
-  nav: Link[]
   footer: {
-    right: Link[]
-  }
+    right: Link[];
+  };
+  nav: Link[];
+  userNav: UserNav[];
 }
 
 export const secureNav: SecureNav = {
@@ -66,4 +66,4 @@ export const secureNav: SecureNav = {
       },
     ],
   },
-}
+};

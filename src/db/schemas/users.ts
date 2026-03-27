@@ -1,5 +1,5 @@
-import { createId } from "@paralleldrive/cuid2"
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core"
+import { createId } from "@paralleldrive/cuid2";
+import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
   id: text("id")
@@ -22,6 +22,6 @@ export const usersTable = pgTable("users", {
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   avatar: text("avatar"),
-})
+});
 
-export type User = typeof usersTable.$inferSelect
+export type User = typeof usersTable.$inferSelect;

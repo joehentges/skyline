@@ -1,19 +1,18 @@
-import Link from "next/link"
-
-import { MagicLinkForm } from "@/containers/magic-link-form"
+import Link from "next/link";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
+import { MagicLinkForm } from "@/containers/magic-link-form";
 
 export default async function MagicLinkPage() {
   return (
     <div className="flex h-full flex-col justify-between space-y-8 px-4 py-8">
       <div className="space-y-8">
         <div className="space-y-3">
-          <h2 className="text-center text-2xl font-bold md:text-3xl">
+          <h2 className="text-center font-bold text-2xl md:text-3xl">
             Welcome Back
           </h2>
           <p className="text-center">
@@ -36,11 +35,11 @@ export default async function MagicLinkPage() {
       <div>
         <p className="text-center">
           Prefer to use a password?{" "}
-          <Link href="/sign-in" className="text-primary hover:underline">
+          <Link className="text-primary hover:underline" href="/sign-in">
             Sign In
           </Link>
         </p>
       </div>
     </div>
-  )
+  );
 }

@@ -1,11 +1,11 @@
-import { getAllSessionsOfUser } from "@/cache-session"
-import { assertAuthenticated } from "@/lib/session"
+import { getAllSessionsOfUser } from "@/cache-session";
+import { assertAuthenticated } from "@/lib/session";
 
-import { TempButton } from "./temp"
+import { TempButton } from "./temp";
 
 export default async function SecureDashboardPage() {
-  const user = await assertAuthenticated()
-  const sessions = await getAllSessionsOfUser(user.id)
+  const user = await assertAuthenticated();
+  const sessions = await getAllSessionsOfUser(user.id);
 
   return (
     <div>
@@ -14,5 +14,5 @@ export default async function SecureDashboardPage() {
       <pre>{JSON.stringify(user, null, 2)}</pre>
       <pre>{JSON.stringify(sessions, null, "\t")}</pre>
     </div>
-  )
+  );
 }

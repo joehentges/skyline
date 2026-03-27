@@ -1,13 +1,13 @@
-import React from "react"
+import type React from "react";
 
-import { Footer } from "@/containers/footer"
+import { Footer } from "@/containers/footer";
 
 interface MarketingLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export default async function MarketingLayout(props: MarketingLayoutProps) {
-  const { children } = props
+  const { children } = props;
 
   return (
     <div className="flex h-screen flex-col">
@@ -21,5 +21,5 @@ export default async function MarketingLayout(props: MarketingLayoutProps) {
         <Footer />
       </footer>
     </div>
-  )
+  );
 }

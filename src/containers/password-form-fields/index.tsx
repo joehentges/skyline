@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { CheckIcon, XIcon } from "lucide-react"
-import { Path, UseFormReturn } from "react-hook-form"
+import { CheckIcon, XIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { Path, UseFormReturn } from "react-hook-form";
 
 import {
   FormControl,
@@ -11,41 +11,42 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
-import { commonlyUsedPasswords, passwordSchema } from "./validation"
+import { commonlyUsedPasswords, passwordSchema } from "./validation";
 
 interface AtLeastPasswordFields {
-  password: string
-  confirmPassword: string
+  confirmPassword: string;
+  password: string;
 }
 
 interface PasswordFormFieldsProps<
   T extends AtLeastPasswordFields = AtLeastPasswordFields,
 > {
-  form: UseFormReturn<T>
+  form: UseFormReturn<T>;
 }
 
 export function PasswordFormFields<
   T extends AtLeastPasswordFields = AtLeastPasswordFields,
 >(props: PasswordFormFieldsProps<T>) {
-  const { form } = props
-  const [hasPasswordLength, setHasPasswordLength] = useState<boolean>(false)
+  const { form } = props;
+  const [hasPasswordLength, setHasPasswordLength] = useState<boolean>(false);
   const [hasPasswordComplexity, setHasPasswordComplexity] =
-    useState<boolean>(false)
-  const [isNotCommonPassword, setIsNotCommonPassword] = useState<boolean>(false)
+    useState<boolean>(false);
+  const [isNotCommonPassword, setIsNotCommonPassword] =
+    useState<boolean>(false);
 
-  const watchedPassword = form.watch("password" as Path<T>)
+  const watchedPassword = form.watch("password" as Path<T>);
 
   useEffect(() => {
-    const passwordLongEnough = watchedPassword.length > 7
-    setHasPasswordLength(passwordLongEnough)
-    setHasPasswordComplexity(passwordSchema.safeParse(watchedPassword).success)
+    const passwordLongEnough = watchedPassword.length > 7;
+    setHasPasswordLength(passwordLongEnough);
+    setHasPasswordComplexity(passwordSchema.safeParse(watchedPassword).success);
     setIsNotCommonPassword(
       passwordLongEnough && !commonlyUsedPasswords.includes(watchedPassword)
-    )
-  }, [watchedPassword])
+    );
+  }, [watchedPassword]);
 
   return (
     <>
@@ -68,7 +69,7 @@ export function PasswordFormFields<
               {hasPasswordLength ? (
                 <CheckIcon className="h-4 w-4 text-emerald-500" />
               ) : (
-                <XIcon className="text-destructive h-4 w-4" />
+                <XIcon className="h-4 w-4 text-destructive" />
               )}
               At least 8 characters long
             </FormDescription>
@@ -76,7 +77,7 @@ export function PasswordFormFields<
               {hasPasswordComplexity ? (
                 <CheckIcon className="h-4 w-4 text-emerald-500" />
               ) : (
-                <XIcon className="text-destructive h-4 w-4" />
+                <XIcon className="h-4 w-4 text-destructive" />
               )}
               Contains at least 3 of: uppercase, lowercase, numbers, special
               characters
@@ -85,7 +86,7 @@ export function PasswordFormFields<
               {isNotCommonPassword ? (
                 <CheckIcon className="h-4 w-4 text-emerald-500" />
               ) : (
-                <XIcon className="text-destructive h-4 w-4" />
+                <XIcon className="h-4 w-4 text-destructive" />
               )}
               Not a commonly used password
             </FormDescription>
@@ -112,5 +113,5 @@ export function PasswordFormFields<
         )}
       />
     </>
-  )
+  );
 }

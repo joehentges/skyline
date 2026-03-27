@@ -1,0 +1,34 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["ultracite/biome/core", "ultracite/biome/next"],
+  "linter": {
+    "rules": {
+      "style": {
+        "useFilenamingConvention": "off",
+        // Encourages 'import type' which Biome groups together
+        "useImportType": "error",
+        "noEnum": "off"
+      },
+      "performance": {
+        "noImgElement": "off"
+      },
+      "correctness": {
+        "useImageSize": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always"
+    }
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        // This stays 'on' as per your current file
+        "organizeImports": "on"
+      }
+    }
+  }
+}

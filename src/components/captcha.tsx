@@ -1,35 +1,34 @@
-"use client"
+"use client";
 
-import dynamic from "next/dynamic"
-
-import { env } from "@/env"
-import { FormMessage } from "@/components/ui/form"
+import dynamic from "next/dynamic";
+import { FormMessage } from "@/components/ui/form";
+import { env } from "@/env";
 
 const Turnstile = dynamic(
   () => import("@marsidev/react-turnstile").then((mod) => mod.Turnstile),
   {
     ssr: false,
   }
-)
+);
 
 interface CaptchaProps {
-  onSuccess: (token: string) => void
-  validationerror?: string
+  onSuccess: (token: string) => void;
+  validationerror?: string;
 }
 
 export const Captcha = (props: CaptchaProps) => {
   const isTurnstileEnabled = Boolean(
     env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY
-  )
+  );
 
   return isTurnstileEnabled ? (
     <>
       <Turnstile
+        onSuccess={props.onSuccess}
         options={{
           size: "flexible",
           language: "auto",
         }}
-        onSuccess={props.onSuccess}
         siteKey={env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY || ""}
       />
 
@@ -39,5 +38,5 @@ export const Captcha = (props: CaptchaProps) => {
         </FormMessage>
       )}
     </>
-  ) : null
-}
+  ) : null;
+};

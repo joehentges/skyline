@@ -1,38 +1,37 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Terminal } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Terminal } from "lucide-react";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { Captcha } from "@/components/captcha";
+import { LoaderButton } from "@/components/loader-button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Form } from "@/components/ui/form";
+import { PasswordFormFields } from "@/containers/password-form-fields";
 
-import { PasswordFormFields } from "@/containers/password-form-fields"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Form } from "@/components/ui/form"
-import { Captcha } from "@/components/captcha"
-import { LoaderButton } from "@/components/loader-button"
-
-import { reviewAndPasswordFormSchema } from "./validation"
+import { reviewAndPasswordFormSchema } from "./validation";
 
 interface ReviewAndPasswordFormProps {
-  onSubmit: (values: z.infer<typeof reviewAndPasswordFormSchema>) => void
-  isPending: boolean
-  hasErrored?: boolean
-  errorMessage?: string
+  errorMessage?: string;
+  hasErrored?: boolean;
+  isPending: boolean;
+  onSubmit: (values: z.infer<typeof reviewAndPasswordFormSchema>) => void;
 }
 
 export function ReviewAndPasswordForm(props: ReviewAndPasswordFormProps) {
-  const { onSubmit, isPending, hasErrored, errorMessage } = props
+  const { onSubmit, isPending, hasErrored, errorMessage } = props;
   const form = useForm<z.infer<typeof reviewAndPasswordFormSchema>>({
     resolver: zodResolver(reviewAndPasswordFormSchema),
     defaultValues: {
       password: "",
       confirmPassword: "",
     },
-  })
+  });
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+      <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
         {hasErrored && (
           <Alert variant="destructive">
             <Terminal className="h-4 w-4" />
@@ -50,15 +49,15 @@ export function ReviewAndPasswordForm(props: ReviewAndPasswordFormProps) {
 
         <div className="pt-2">
           <LoaderButton
-            isLoading={isPending}
             className="w-full"
-            type="submit"
+            isLoading={isPending}
             size="lg"
+            type="submit"
           >
             Sign up
           </LoaderButton>
         </div>
       </form>
     </Form>
-  )
+  );
 }

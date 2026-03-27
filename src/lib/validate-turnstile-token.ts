@@ -1,13 +1,13 @@
-import { env } from "@/env"
+import { env } from "@/env";
 
 interface TurnstileResponse {
-  success: boolean
-  "error-codes"?: string[]
+  "error-codes"?: string[];
+  success: boolean;
 }
 
 export async function validateTurnstileToken(token: string) {
-  if (!Boolean(env.CLOUDFLARE_TURNSTILE_SECRET_KEY)) {
-    return true
+  if (!env.CLOUDFLARE_TURNSTILE_SECRET_KEY) {
+    return true;
   }
 
   const response = await fetch(
@@ -22,9 +22,9 @@ export async function validateTurnstileToken(token: string) {
         response: token,
       }),
     }
-  )
+  );
 
-  const data = (await response.json()) as TurnstileResponse
+  const data = (await response.json()) as TurnstileResponse;
 
-  return data.success
+  return data.success;
 }

@@ -1,11 +1,10 @@
-import * as React from "react"
-import { MagicLinkEmail } from "@/emails/magic-link"
-import { ResetPasswordEmail } from "@/emails/reset-password"
-import { VerifyEmail } from "@/emails/verify-email"
-
-import { env } from "@/env"
-import { siteConfig } from "@/config/site"
-import { resend } from "@/client/resend"
+import type * as React from "react";
+import { resend } from "@/client/resend";
+import { siteConfig } from "@/config/site";
+import { MagicLinkEmail } from "@/emails/magic-link";
+import { ResetPasswordEmail } from "@/emails/reset-password";
+import { VerifyEmail } from "@/emails/verify-email";
+import { env } from "@/env";
 
 async function sendEmail(
   email: string,
@@ -13,7 +12,7 @@ async function sendEmail(
   body: React.ReactNode
 ) {
   if (env.NODE_ENV !== "production") {
-    return
+    return;
   }
 
   const { error } = await resend.emails.send({
@@ -21,40 +20,40 @@ async function sendEmail(
     to: email,
     subject,
     react: <>{body}</>,
-  })
+  });
 
   if (error) {
-    throw error
+    throw error;
   }
 }
 
 export async function sendVerifyEmail(email: string, token: string) {
-  console.log(`OTP email verification sent to: ${email} with token: ${token}`)
+  console.log(`OTP email verification sent to: ${email} with token: ${token}`);
   await sendEmail(
     email,
     `Verify your email for ${siteConfig.name}`,
     <VerifyEmail token={token} />
-  )
+  );
 }
 
 export async function sendResetPasswordEmail(email: string, token: string) {
-  const href = `${env.HOST_NAME}/reset-password?token=${token}`
+  const href = `${env.HOST_NAME}/reset-password?token=${token}`;
   console.log(
     `Password reset link sign in sent to: ${email} with link: ${href}`
-  )
+  );
   await sendEmail(
     email,
     `Your password reset link for ${siteConfig.name}`,
     <ResetPasswordEmail href={token} />
-  )
+  );
 }
 
 export async function sendMagicLinkEmail(email: string, token: string) {
-  const href = `${env.HOST_NAME}/api/auth/magic?token=${token}`
-  console.log(`Magic link sign in sent to: ${email} with link: ${href}`)
+  const href = `${env.HOST_NAME}/api/auth/magic?token=${token}`;
+  console.log(`Magic link sign in sent to: ${email} with link: ${href}`);
   await sendEmail(
     email,
     `Your magic link link for ${siteConfig.name}`,
     <MagicLinkEmail href={href} />
-  )
+  );
 }

@@ -1,11 +1,10 @@
-import { headers as nextHeaders } from "next/headers"
-import { NextRequest, NextResponse } from "next/server"
-import Stripe from "stripe"
-
-import { env } from "@/env"
-import { updateAllSessionsOfUser } from "@/cache-session"
-import { stripe } from "@/client/stripe"
-import { syncDatabaseWithStripe } from "@/lib/sync-database-with-stripe"
+import { headers as nextHeaders } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
+import type Stripe from "stripe";
+import { updateAllSessionsOfUser } from "@/cache-session";
+import { stripe } from "@/client/stripe";
+import { env } from "@/env";
+import { syncDatabaseWithStripe } from "@/lib/sync-database-with-stripe";
 
 const allowedEvents: Stripe.Event.Type[] = [
   "checkout.session.completed",
@@ -26,12 +25,12 @@ const allowedEvents: Stripe.Event.Type[] = [
   "payment_intent.succeeded",
   "payment_intent.payment_failed",
   "payment_intent.canceled",
-]
+];
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const body = await request.text()
-  const headers = await nextHeaders()
-  const signature = headers.get("stripe-signature")
+  const body = await request.text();
+  const headers = await nextHeaders();
+  const signature = headers.get("stripe-signature");
 
   if (!signature) {
     return NextResponse.json(
@@ -39,37 +38,37 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         message: "Webhook secret or signature not found.",
       },
       { status: 400 }
-    )
+    );
   }
 
-  let event: Stripe.Event
+  let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
       env.STRIPE_WEBHOOK_SECRET
-    )
+    );
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   } catch (err: any) {
-    console.error(`Webhook signature verification failed. ${err.message}`)
-    return NextResponse.json({ error: err.message }, { status: 400 })
+    console.error(`Webhook signature verification failed. ${err.message}`);
+    return NextResponse.json({ error: err.message }, { status: 400 });
   }
 
   try {
-    const userSubscription = await processEvent(event)
+    const userSubscription = await processEvent(event);
 
     if (userSubscription) {
-      updateAllSessionsOfUser(userSubscription?.userId)
+      updateAllSessionsOfUser(userSubscription?.userId);
     }
 
-    return NextResponse.json({ message: "success" })
+    return NextResponse.json({ message: "success" });
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error("api/webhooks/stripe - error", error)
+    console.error("api/webhooks/stripe - error", error);
     return new NextResponse(null, {
       status: 500,
-    })
+    });
   }
 }
 
@@ -77,22 +76,21 @@ export const config = {
   api: {
     bodyParser: false,
   },
-}
+};
 
 async function processEvent(event: Stripe.Event) {
   if (allowedEvents.includes(event.type)) {
     const { customer: customerId } = event?.data?.object as {
-      customer: string
-    }
+      customer: string;
+    };
 
     if (typeof customerId !== "string") {
       throw new Error(
         `STRIPE WEBHOOK] CustomerID is not a string. Event type: ${event.type}`
-      )
+      );
     }
 
-    return syncDatabaseWithStripe(customerId)
-  } else {
-    console.log(`[STRIPE WEBHOOK] Ingoring event type: ${event.type}`)
+    return syncDatabaseWithStripe(customerId);
   }
+  console.log(`[STRIPE WEBHOOK] Ingoring event type: ${event.type}`);
 }

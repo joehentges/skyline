@@ -1,12 +1,12 @@
-import { siteConfig } from "@/config/site"
-import { SignUpForm } from "@/containers/sign-up-form"
+import { siteConfig } from "@/config/site";
+import { SignUpForm } from "@/containers/sign-up-form";
 
 export default async function SignUpPage() {
   return (
     <div className="flex h-full flex-col justify-between space-y-8 px-4 py-8">
       <div className="space-y-8">
         <div className="space-y-3">
-          <h2 className="text-center text-2xl font-bold md:text-3xl">
+          <h2 className="text-center font-bold text-2xl md:text-3xl">
             Get Started
           </h2>
           <p className="text-center text-base">
@@ -17,5 +17,5 @@ export default async function SignUpPage() {
         <SignUpForm />
       </div>
     </div>
-  )
+  );
 }

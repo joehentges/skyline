@@ -1,20 +1,19 @@
-import { NextRequest, NextResponse } from "next/server"
-import { eq } from "drizzle-orm"
+import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
+import { redis } from "@/client/redis";
+import { AFTER_SIGN_IN_URL, REDIS_PREFIX, SIGN_IN_URL } from "@/config";
+import { database } from "@/db";
+import { usersTable } from "@/db/schemas";
+import { rateLimitByIp } from "@/lib/limiter";
+import { getCurrentUser, setSession } from "@/lib/session";
 
-import { AFTER_SIGN_IN_URL, REDIS_PREFIX, SIGN_IN_URL } from "@/config"
-import { database } from "@/db"
-import { usersTable } from "@/db/schemas"
-import { redis } from "@/client/redis"
-import { rateLimitByIp } from "@/lib/limiter"
-import { getCurrentUser, setSession } from "@/lib/session"
-
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    await rateLimitByIp({ key: "magic-token", limit: 5, window: 60000 })
+    await rateLimitByIp({ key: "magic-token", limit: 5, window: 60_000 });
 
-    const existingSession = await getCurrentUser()
+    const existingSession = await getCurrentUser();
 
     if (existingSession) {
       return new NextResponse(null, {
@@ -22,11 +21,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         headers: {
           Location: AFTER_SIGN_IN_URL,
         },
-      })
+      });
     }
 
-    const url = new URL(request.url)
-    const token = url.searchParams.get("token")
+    const url = new URL(request.url);
+    const token = url.searchParams.get("token");
 
     if (!token) {
       return new NextResponse(null, {
@@ -34,30 +33,30 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         headers: {
           Location: SIGN_IN_URL,
         },
-      })
+      });
     }
 
     const magicSignInInfoStr = await redis.get(
       `${REDIS_PREFIX.MAGIC_SIGN_IN}:${token}`
-    )
+    );
 
     if (!magicSignInInfoStr) {
-      throw new Error("Invalid token")
+      throw new Error("Invalid token");
     }
 
     const magicSignInInfo = JSON.parse(magicSignInInfoStr) as {
-      email: string
-      expiresAt: string
-    }
+      email: string;
+      expiresAt: string;
+    };
 
     // Check if token is expired (although redis should have auto-deleted it)
     if (new Date() > new Date(magicSignInInfo.expiresAt)) {
-      throw new Error("Token has expired")
+      throw new Error("Token has expired");
     }
 
     const existingUser = await database.query.usersTable.findFirst({
       where: eq(usersTable.email, magicSignInInfo.email),
-    })
+    });
 
     if (!existingUser) {
       return new NextResponse(null, {
@@ -65,7 +64,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         headers: {
           Location: "/sign-up",
         },
-      })
+      });
     }
 
     const [user] = await database
@@ -74,26 +73,26 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         emailVerified: new Date(),
       })
       .where(eq(usersTable.id, existingUser.id))
-      .returning()
+      .returning();
 
-    await setSession(user.id, "magic-link")
+    await setSession(user.id, "magic-link");
 
-    await redis.del(`${REDIS_PREFIX.MAGIC_SIGN_IN}:${token}`)
+    await redis.del(`${REDIS_PREFIX.MAGIC_SIGN_IN}:${token}`);
 
     return new NextResponse(null, {
       status: 302,
       headers: {
         Location: AFTER_SIGN_IN_URL,
       },
-    })
+    });
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error("api/auth/magic - error", error)
+    console.error("api/auth/magic - error", error);
     return new NextResponse(null, {
       status: 302,
       headers: {
         Location: "/sign-in/magic/error",
       },
-    })
+    });
   }
 }

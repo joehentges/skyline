@@ -1,39 +1,38 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useUserContext } from "@/contexts/user-context"
+import { useState } from "react";
+import { LoaderButton } from "@/components/loader-button";
+import { useUserContext } from "@/contexts/user-context";
 
-import { LoaderButton } from "@/components/loader-button"
-
-import { onCheckoutClicked, onManageSubscriptionClicked } from "./action"
+import { onCheckoutClicked, onManageSubscriptionClicked } from "./action";
 
 export function TempButton() {
-  const { user } = useUserContext()
-  const [isPending, setIsPending] = useState<boolean>(false)
+  const { user } = useUserContext();
+  const [isPending, setIsPending] = useState<boolean>(false);
 
   if (user.subscription.status === "active") {
     return (
       <LoaderButton
         isLoading={isPending}
         onClick={() => {
-          setIsPending(true)
-          onManageSubscriptionClicked(user)
+          setIsPending(true);
+          onManageSubscriptionClicked(user);
         }}
       >
         manage subscription
       </LoaderButton>
-    )
+    );
   }
 
   return (
     <LoaderButton
       isLoading={isPending}
       onClick={() => {
-        setIsPending(true)
-        onCheckoutClicked(user, "price_1S06yRDVAP63KtqVljm9ceuY")
+        setIsPending(true);
+        onCheckoutClicked(user, "price_1S06yRDVAP63KtqVljm9ceuY");
       }}
     >
       checkout
     </LoaderButton>
-  )
+  );
 }

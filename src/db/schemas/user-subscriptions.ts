@@ -1,7 +1,7 @@
-import { createId } from "@paralleldrive/cuid2"
-import { boolean, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core"
+import { createId } from "@paralleldrive/cuid2";
+import { boolean, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-import { usersTable } from "./users"
+import { usersTable } from "./users";
 
 export const subscriptionStatuses = pgEnum("subscription_status", [
   "incomplete",
@@ -12,9 +12,9 @@ export const subscriptionStatuses = pgEnum("subscription_status", [
   "canceled",
   "unpaid",
   "paused",
-])
+]);
 export type SubscriptionStatus =
-  (typeof subscriptionStatuses.enumValues)[number]
+  (typeof subscriptionStatuses.enumValues)[number];
 
 export const userSubscriptionsTable = pgTable("user_subscriptions", {
   id: text("id")
@@ -38,6 +38,6 @@ export const userSubscriptionsTable = pgTable("user_subscriptions", {
   cancelAtPeriodEnd: boolean("cancel_at_period_end"),
   paymentMethodBrand: text("payment_method_brand"),
   paymentMethodLast4: text("payment_method_last_4"),
-})
+});
 
-export type UserSubscription = typeof userSubscriptionsTable.$inferSelect
+export type UserSubscription = typeof userSubscriptionsTable.$inferSelect;

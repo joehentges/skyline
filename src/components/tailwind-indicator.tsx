@@ -1,24 +1,26 @@
-"use client"
+"use client";
 
-import { Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 export function TailwindIndicator() {
-  const { setTheme } = useTheme()
+  const { setTheme } = useTheme();
 
-  if (process.env.NODE_ENV === "production") return null
+  if (process.env.NODE_ENV === "production") {
+    return null;
+  }
 
   return (
     <div className="fixed right-10 bottom-5 z-50 flex items-center space-x-2 print:hidden">
-      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-800 p-3 font-mono text-xs text-white">
+      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-800 p-3 font-mono text-white text-xs">
         <div className="block sm:hidden">xs</div>
         <div className="hidden sm:block md:hidden lg:hidden xl:hidden 2xl:hidden">
           sm
@@ -32,11 +34,11 @@ export function TailwindIndicator() {
         <DropdownMenuTrigger asChild>
           <Button
             className="rounded-full bg-gray-800 hover:bg-gray-900"
-            variant="outline"
             size="icon"
+            variant="outline"
           >
-            <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 text-white transition-all dark:scale-0 dark:-rotate-90" />
-            <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 text-white transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
         </DropdownMenuTrigger>
@@ -53,5 +55,5 @@ export function TailwindIndicator() {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  )
+  );
 }

@@ -32,6 +32,9 @@ export const userSubscriptionsTable = pgTable("user_subscriptions", {
     .references(() => usersTable.id, { onDelete: "cascade" })
     .notNull(),
   customerId: text("customer_id").unique().notNull(),
+  // an id of the referral that referred the user
+  referralId: text("referral_id"),
+  salesAttributionDate: timestamp("sales_attribution_date", { mode: "date" }),
   subscriptionId: text("subscription_id").unique(),
   status: subscriptionStatuses("status"),
   currentPeriodEnd: timestamp("current_period_end", { mode: "date" }),

@@ -3,6 +3,7 @@
 import crypto from "node:crypto";
 import argon2 from "argon2";
 import { eq } from "drizzle-orm";
+import { cookies as nextCookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { redis } from "@/client/redis";
 import { stripe } from "@/client/stripe";
@@ -124,6 +125,12 @@ export const signUpAction = unauthenticatedAction
       throw new Error("Email is already in use");
     }
 
+    const cookies = await nextCookies();
+    const referralCookie = cookies.get("referral");
+    const referralId = referralCookie
+      ? decodeURIComponent(referralCookie.value)
+      : null;
+
     const signUpIpAddress = await getIp();
 
     const user = await database.transaction(async (trx) => {
@@ -145,6 +152,7 @@ export const signUpAction = unauthenticatedAction
         name: `${parsedInput.firstName} ${parsedInput.lastName}`,
         metadata: {
           signUpIpAddress,
+          referralId,
         },
       });
 
@@ -153,6 +161,7 @@ export const signUpAction = unauthenticatedAction
         .values({
           userId: createdUser.id,
           customerId: stripeCustomer.id,
+          referralId,
         })
         .returning();
 

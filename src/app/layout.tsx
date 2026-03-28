@@ -3,6 +3,8 @@ import { Inter, Roboto } from "next/font/google";
 
 import "@/styles/globals.css";
 
+import { Suspense } from "react";
+import { ReferralParamTracker } from "@/components/referral-param-tracker";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/site";
@@ -76,6 +78,9 @@ export default function RootLayout({
           {children}
           <TailwindIndicator />
           <Toaster />
+          <Suspense fallback={null}>
+            <ReferralParamTracker />
+          </Suspense>
         </Providers>
       </body>
     </html>

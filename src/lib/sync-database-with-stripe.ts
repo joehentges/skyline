@@ -21,6 +21,15 @@ export async function syncDatabaseWithStripe(customerId: string) {
       return userSubscription;
     }
 
+    const existingUserSubscription =
+      await database.query.userSubscriptionsTable.findFirst({
+        where: eq(userSubscriptionsTable.customerId, customerId),
+      });
+
+    if (!existingUserSubscription) {
+      throw new Error("User subscription not found");
+    }
+
     const subscription = subscriptions.data[0];
     const paymentMethod =
       typeof subscription.default_payment_method !== "string"
@@ -37,7 +46,11 @@ export async function syncDatabaseWithStripe(customerId: string) {
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       paymentMethodBrand: paymentMethod?.card?.brand ?? null,
       paymentMethodLast4: paymentMethod?.card?.last4 ?? null,
+      salesAttributionDate: existingUserSubscription.referralId
+        ? new Date()
+        : undefined,
     };
+
     const [userSubscription] = await database
       .update(userSubscriptionsTable)
       .set(subscriptionData)

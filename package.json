@@ -63,7 +63,7 @@
     "dotenv": "17.2.3",
     "drizzle-kit": "0.31.4",
     "tailwindcss": "4.2.2",
-    "tsx": "4.20.5",
+    "tsx": "4.21.0",
     "typescript": "5.9.3",
     "ultracite": "7.2.3"
   }

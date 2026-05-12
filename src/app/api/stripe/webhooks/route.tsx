@@ -71,12 +71,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 }
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 function processEvent(event: Stripe.Event) {
   if (allowedEvents.includes(event.type)) {
     const { customer: customerId } = event?.data?.object as {

@@ -3,9 +3,8 @@ import "server-only";
 import { headers } from "next/headers";
 
 import { getUserFromDatabase } from "@/auth";
+import { kv } from "@/client/kv";
 import { getIp } from "@/lib/get-ip";
-
-import { redis } from "./client/redis";
 
 const SESSION_PREFIX = "session:";
 
@@ -72,7 +71,7 @@ export async function createCacheSession({
     await deleteCacheSession(oldestSession.session.id, user.id);
   }
 
-  await redis.set(
+  await kv.set(
     getSessionKey(userId, sessionId),
     JSON.stringify(session),
     "EX",
@@ -86,7 +85,7 @@ export async function getCacheSession(
   sessionId: string,
   userId: string
 ): Promise<CacheSession | null> {
-  const sessionStr = await redis.get(getSessionKey(userId, sessionId));
+  const sessionStr = await kv.get(getSessionKey(userId, sessionId));
   if (!sessionStr) {
     return null;
   }
@@ -116,7 +115,7 @@ export async function updateCacheSession(
     user: updatedUser,
   };
 
-  await redis.set(
+  await kv.set(
     getSessionKey(userId, sessionId),
     JSON.stringify(updatedSession),
     "EX",
@@ -135,11 +134,11 @@ export async function deleteCacheSession(
     return;
   }
 
-  await redis.del(getSessionKey(userId, sessionId));
+  await kv.del(getSessionKey(userId, sessionId));
 }
 
 export async function getAllSessionsOfUser(userId: string) {
-  const keys = await redis.keys(`${getSessionKey(userId, "")}*`);
+  const keys = await kv.keys(`${getSessionKey(userId, "")}*`);
 
   const sessions: Array<{
     key: string;
@@ -147,8 +146,8 @@ export async function getAllSessionsOfUser(userId: string) {
     session: CacheSession;
   }> = [];
   for (const key of keys) {
-    const ttl = await redis.ttl(key);
-    const session = await redis.get(key);
+    const ttl = await kv.ttl(key);
+    const session = await kv.get(key);
 
     if (!(ttl && session)) {
       continue;
@@ -177,7 +176,7 @@ export async function updateAllSessionsOfUser(userId: string) {
   }
 
   for (const sessionObj of sessions) {
-    const session = await redis.get(sessionObj.key);
+    const session = await kv.get(sessionObj.key);
     if (!session) {
       continue;
     }
@@ -193,7 +192,7 @@ export async function updateAllSessionsOfUser(userId: string) {
         (sessionObj.absoluteExpiration.getTime() - Date.now()) / 1000
       );
 
-      await redis.set(
+      await kv.set(
         sessionObj.key,
         JSON.stringify({
           ...sessionData,

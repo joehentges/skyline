@@ -24,3 +24,7 @@ npm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# misc
+.cc-history
+.claude

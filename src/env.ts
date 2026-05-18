@@ -6,7 +6,6 @@ export const env = createEnv({
     NODE_ENV: z.string().optional(),
     VERCEL_URL: z.string().min(1),
     DATABASE_URL: z.string().min(1),
-    REDIS_URL: z.string().min(1),
     RESEND_API_KEY: z.string().min(1),
     RESEND_EMAIL_FROM: z.string().min(1),
     DISABLE_EMAIL: z
@@ -32,7 +31,6 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     VERCEL_URL: process.env.VERCEL_URL,
     DATABASE_URL: process.env.DATABASE_URL,
-    REDIS_URL: process.env.REDIS_URL,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     RESEND_EMAIL_FROM: process.env.RESEND_EMAIL_FROM,
     DISABLE_EMAIL: process.env.DISABLE_EMAIL,

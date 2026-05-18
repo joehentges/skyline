@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { redis } from "@/client/redis";
-import { REDIS_PREFIX } from "@/config";
+import { kv } from "@/client/kv";
+import { KV_PREFIX } from "@/config";
 import { ResetPasswordForm } from "@/containers/reset-password-form";
 
 interface ResetPasswordPageProps {
@@ -15,9 +15,7 @@ export default async function ResetPasswordPage(props: ResetPasswordPageProps) {
     return notFound();
   }
 
-  const resetTokenStr = await redis.get(
-    `${REDIS_PREFIX.PASSWORD_RESET}:${token}`
-  );
+  const resetTokenStr = await kv.get(`${KV_PREFIX.PASSWORD_RESET}:${token}`);
 
   if (!resetTokenStr) {
     return notFound();

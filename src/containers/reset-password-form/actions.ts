@@ -3,7 +3,7 @@
 import argon2 from "argon2";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { redis } from "@/client/redis";
+import { kv } from "@/client/kv";
 import { SIGN_IN_URL } from "@/config";
 import { database } from "@/db";
 import { usersTable } from "@/db/schemas";
@@ -21,7 +21,7 @@ export const resetPasswordAction = unauthenticatedAction
       window: 10_000,
     });
 
-    const passwordResetInfoStr = await redis.get(
+    const passwordResetInfoStr = await kv.get(
       `password-reset:${parsedInput.token}`
     );
 
@@ -55,7 +55,7 @@ export const resetPasswordAction = unauthenticatedAction
       })
       .where(eq(usersTable.id, user.id));
 
-    await redis.del(`password-reset:${parsedInput.token}`);
+    await kv.del(`password-reset:${parsedInput.token}`);
 
     redirect(SIGN_IN_URL);
   });

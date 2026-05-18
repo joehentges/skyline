@@ -4,6 +4,7 @@ import postgres from "postgres";
 import { env } from "@/env";
 
 import {
+  kvStoreTable,
   subscriptionStatuses,
   userSubscriptionsRelations,
   userSubscriptionsTable,
@@ -12,6 +13,7 @@ import {
 } from "./schemas";
 
 const schema = {
+  kvStoreTable,
   usersTable,
   userSubscriptionsTable,
   subscriptionStatuses,

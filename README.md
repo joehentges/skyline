@@ -8,15 +8,13 @@
 - Docker
 - Docker Compose
 
-First, create and modify your `.env` file. Note: the `.env.exmaple` file. _Note, `DATABASE_URL` and `REDIS_URL` point to local docker containers._
+First, create and modify your `.env` file. Note: the `.env.exmaple` file. _Note, `DATABASE_URL` points to local docker containers._
 
 ```bash
 NODE_ENV=development
 VERCEL_URL=localhost:3000
 
 DATABASE_URL=postgresql://postgres:password@localhost:5432/postgres
-
-REDIS_URL=redis://:password@localhost:6379
 
 RESEND_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 RESEND_EMAIL_FROM=email@provider.com

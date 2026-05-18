@@ -3,6 +3,7 @@ import { relations } from "drizzle-orm";
 import { userSubscriptionsTable } from "./user-subscriptions";
 import { usersTable } from "./users";
 
+export * from "./kv-store";
 export * from "./user-subscriptions";
 export * from "./users";
 

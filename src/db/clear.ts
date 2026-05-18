@@ -2,7 +2,7 @@ import "dotenv/config";
 
 import { sql } from "drizzle-orm";
 
-import { redis } from "@/client/redis";
+import { kv } from "@/client/kv";
 
 import { database, pg } from "./index";
 
@@ -11,6 +11,8 @@ async function main() {
   if (!tablesSchema) {
     throw new Error("Schema not loaded");
   }
+
+  await kv.flushall();
 
   await database.execute(sql.raw(`DROP SCHEMA IF EXISTS "drizzle" CASCADE;`));
 
@@ -23,10 +25,6 @@ async function main() {
   );
 
   await pg.end();
-
-  await redis.flushall();
-
-  await redis.disconnect();
 }
 
 main();

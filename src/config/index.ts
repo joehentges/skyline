@@ -9,7 +9,7 @@ export const TOKEN_TTL = {
 
 export const REFERRAL_COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days
 
-export const REDIS_PREFIX = {
+export const KV_PREFIX = {
   PASSWORD_RESET: "password-reset",
   MAGIC_SIGN_IN: "magic-sign-in",
   VERIFY_EMAIL: "verify-email",

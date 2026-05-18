@@ -1,4 +1,4 @@
-import { redis } from "@/client/redis";
+import { kv } from "@/client/kv";
 
 import { getIp } from "./get-ip";
 
@@ -40,7 +40,7 @@ export async function rateLimitByKey({
 }) {
   let tracker: Tracker = { count: 0, expiresAt: 0 };
 
-  const cachedTracker = await redis.get(key);
+  const cachedTracker = await kv.get(key);
   if (cachedTracker) {
     tracker = JSON.parse(cachedTracker);
   }
@@ -56,5 +56,5 @@ export async function rateLimitByKey({
     throw new Error("Rate limit exceeded");
   }
 
-  await redis.set(key, JSON.stringify(tracker), "EX", window);
+  await kv.set(key, JSON.stringify(tracker), "EX", window);
 }

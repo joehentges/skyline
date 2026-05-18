@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
-import { redis } from "@/client/redis";
-import { AFTER_SIGN_IN_URL, REDIS_PREFIX, SIGN_IN_URL } from "@/config";
+import { kv } from "@/client/kv";
+import { AFTER_SIGN_IN_URL, KV_PREFIX, SIGN_IN_URL } from "@/config";
 import { database } from "@/db";
 import { usersTable } from "@/db/schemas";
 import { rateLimitByIp } from "@/lib/limiter";
@@ -36,8 +36,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    const magicSignInInfoStr = await redis.get(
-      `${REDIS_PREFIX.MAGIC_SIGN_IN}:${token}`
+    const magicSignInInfoStr = await kv.get(
+      `${KV_PREFIX.MAGIC_SIGN_IN}:${token}`,
     );
 
     if (!magicSignInInfoStr) {
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       expiresAt: string;
     };
 
-    // Check if token is expired (although redis should have auto-deleted it)
+    // Check if token is expired (although kv should have auto-deleted it)
     if (new Date() > new Date(magicSignInInfo.expiresAt)) {
       throw new Error("Token has expired");
     }
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     await setSession(user.id, "magic-link");
 
-    await redis.del(`${REDIS_PREFIX.MAGIC_SIGN_IN}:${token}`);
+    await kv.del(`${KV_PREFIX.MAGIC_SIGN_IN}:${token}`);
 
     return new NextResponse(null, {
       status: 302,

@@ -5,9 +5,9 @@ import argon2 from "argon2";
 import { eq } from "drizzle-orm";
 import { cookies as nextCookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { redis } from "@/client/redis";
+import { kv } from "@/client/kv";
 import { stripe } from "@/client/stripe";
-import { AFTER_SIGN_IN_URL, REDIS_PREFIX, TOKEN_TTL } from "@/config";
+import { AFTER_SIGN_IN_URL, KV_PREFIX, TOKEN_TTL } from "@/config";
 import { database } from "@/db";
 import { userSubscriptionsTable, usersTable } from "@/db/schemas";
 import { env } from "@/env";
@@ -46,14 +46,14 @@ export const sendEmailVerificationCodeAction = unauthenticatedAction
     const expiresAt = new Date(Date.now() + TOKEN_TTL.EMAIL_VERIFICATION);
 
     // Save verification token in KV with expiration
-    await redis.set(
-      `${REDIS_PREFIX.VERIFY_EMAIL}:${token}`,
+    await kv.set(
+      `${KV_PREFIX.VERIFY_EMAIL}:${token}`,
       JSON.stringify({
         email: parsedInput.email,
         expiresAt: expiresAt.toISOString(),
       }),
       "EX",
-      Math.floor((expiresAt.getTime() - Date.now()) / 1000)
+      Math.floor((expiresAt.getTime() - Date.now()) / 1000),
     );
 
     await sendVerifyEmail(parsedInput.email, token);
@@ -70,8 +70,8 @@ export const verifyEmailAction = unauthenticatedAction
       window: 10_000,
     });
 
-    const tokenInfoStr = await redis.get(
-      `${REDIS_PREFIX.VERIFY_EMAIL}:${parsedInput.token}`
+    const tokenInfoStr = await kv.get(
+      `${KV_PREFIX.VERIFY_EMAIL}:${parsedInput.token}`,
     );
 
     if (!tokenInfoStr) {
@@ -83,7 +83,7 @@ export const verifyEmailAction = unauthenticatedAction
       expiresAt: string;
     };
 
-    // Check if token is expired (although redis should have auto-deleted it)
+    // Check if token is expired (although kv should have auto-deleted it)
     if (new Date() > new Date(tokenInfo.expiresAt)) {
       throw new Error("Token has expired");
     }

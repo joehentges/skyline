@@ -5,7 +5,7 @@ import {
 } from "@oslojs/encoding";
 import { eq } from "drizzle-orm";
 import { cookies as nextCookies } from "next/headers";
-import { redis } from "@/client/redis";
+import { kv } from "@/client/kv";
 import { AUTH_SESSION_TTL } from "@/config";
 import { database } from "@/db";
 import { type User, usersTable } from "@/db/schemas";
@@ -79,7 +79,7 @@ async function validateSessionToken(
 ): Promise<SessionValidationResult | null> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
-  const sessionStr = await redis.get(getSessionKey(userId, sessionId));
+  const sessionStr = await kv.get(getSessionKey(userId, sessionId));
   if (!sessionStr) {
     return null;
   }

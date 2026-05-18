@@ -44,3 +44,4 @@ export const userSubscriptionsTable = pgTable("user_subscriptions", {
 });
 
 export type UserSubscription = typeof userSubscriptionsTable.$inferSelect;
+export type NewUserSubscription = typeof userSubscriptionsTable.$inferInsert;

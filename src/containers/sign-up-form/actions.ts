@@ -108,7 +108,7 @@ export const signUpAction = unauthenticatedAction
 
     if (
       !env.NEXT_PUBLIC_DISABLE_TURNSTILE &&
-      Boolean(env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY) &&
+      env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY &&
       parsedInput.captchaToken
     ) {
       const success = await validateTurnstileToken(parsedInput.captchaToken);

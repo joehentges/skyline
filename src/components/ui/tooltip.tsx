@@ -39,4 +39,4 @@ const TooltipContent = forwardRef<
 ));
 TooltipContent.displayName = Content.displayName;
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger };

@@ -18,7 +18,7 @@ import type { User } from "@/db/schemas";
 export const getCurrentUser = cache(async () => {
   const session = await validateRequest();
   if (!session?.user) {
-    return undefined;
+    return;
   }
   return session.user;
 });

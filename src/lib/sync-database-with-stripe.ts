@@ -32,9 +32,9 @@ export async function syncDatabaseWithStripe(customerId: string) {
 
     const subscription = subscriptions.data[0];
     const paymentMethod =
-      typeof subscription.default_payment_method !== "string"
-        ? subscription.default_payment_method
-        : null;
+      typeof subscription.default_payment_method === "string"
+        ? null
+        : subscription.default_payment_method;
 
     const subscriptionData = {
       subscriptionId: subscription.id,

@@ -1,11 +1,12 @@
-import { kv } from "@/client/kv";
-
 import { getIp } from "./get-ip";
 
 interface Tracker {
   count: number;
   expiresAt: number;
 }
+
+// Temporary in-process rate limit store — replace with Cloudflare edge rules later
+const trackerMap = new Map<string, Tracker>();
 
 export async function rateLimitByIp({
   key = "global",
@@ -22,32 +23,26 @@ export async function rateLimitByIp({
     throw new Error("Rate limit exceeded");
   }
 
-  await rateLimitByKey({
+  rateLimitByKey({
     key: `${ip}-${key}`,
     limit,
     window,
   });
 }
 
-export async function rateLimitByKey({
+export function rateLimitByKey({
   key = "global",
   limit = 1,
   window = 10_000,
 }: {
   key?: string;
   limit?: number;
-  window?: number; // ms
+  window?: number;
 }) {
-  let tracker: Tracker = { count: 0, expiresAt: 0 };
-
-  const cachedTracker = await kv.get(key);
-  if (cachedTracker) {
-    tracker = JSON.parse(cachedTracker);
-  }
+  let tracker: Tracker = trackerMap.get(key) ?? { count: 0, expiresAt: 0 };
 
   if (tracker.expiresAt < Date.now()) {
-    tracker.count = 0;
-    tracker.expiresAt = Date.now() + window;
+    tracker = { count: 0, expiresAt: Date.now() + window };
   }
 
   tracker.count += 1;
@@ -56,5 +51,5 @@ export async function rateLimitByKey({
     throw new Error("Rate limit exceeded");
   }
 
-  await kv.set(key, JSON.stringify(tracker), "EX", window);
+  trackerMap.set(key, tracker);
 }

@@ -1,7 +1,6 @@
 import { headers as nextHeaders } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { updateAllSessionsOfUser } from "@/cache-session";
 import { stripe } from "@/client/stripe";
 import { env } from "@/env";
 import { syncDatabaseWithStripe } from "@/lib/sync-database-with-stripe";
@@ -56,11 +55,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const userSubscription = await processEvent(event);
-
-    if (userSubscription) {
-      updateAllSessionsOfUser(userSubscription?.userId);
-    }
+    await processEvent(event);
 
     return NextResponse.json({ message: "success" });
   } catch (error: unknown) {

@@ -1,9 +1,8 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
-import { kv } from "@/client/kv";
-import { AFTER_SIGN_IN_URL, KV_PREFIX, SIGN_IN_URL } from "@/config";
+import { AFTER_SIGN_IN_URL, SIGN_IN_URL } from "@/config";
 import { database } from "@/db";
-import { usersTable } from "@/db/schemas";
+import { tokensTable, usersTable } from "@/db/schemas";
 import { rateLimitByIp } from "@/lib/limiter";
 import { getCurrentUser, setSession } from "@/lib/session";
 
@@ -36,26 +35,23 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    const magicSignInInfoStr = await kv.get(
-      `${KV_PREFIX.MAGIC_SIGN_IN}:${token}`,
-    );
+    const tokenRow = await database.query.tokensTable.findFirst({
+      where: and(
+        eq(tokensTable.token, token),
+        eq(tokensTable.type, "magic-link")
+      ),
+    });
 
-    if (!magicSignInInfoStr) {
+    if (!tokenRow) {
       throw new Error("Invalid token");
     }
 
-    const magicSignInInfo = JSON.parse(magicSignInInfoStr) as {
-      email: string;
-      expiresAt: string;
-    };
-
-    // Check if token is expired (although kv should have auto-deleted it)
-    if (new Date() > new Date(magicSignInInfo.expiresAt)) {
+    if (new Date() > tokenRow.expiresAt) {
       throw new Error("Token has expired");
     }
 
     const existingUser = await database.query.usersTable.findFirst({
-      where: eq(usersTable.email, magicSignInInfo.email),
+      where: eq(usersTable.email, tokenRow.email),
     });
 
     if (!existingUser) {
@@ -77,7 +73,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     await setSession(user.id, "magic-link");
 
-    await kv.del(`${KV_PREFIX.MAGIC_SIGN_IN}:${token}`);
+    await database
+      .delete(tokensTable)
+      .where(
+        and(eq(tokensTable.token, token), eq(tokensTable.type, "magic-link"))
+      );
 
     return new NextResponse(null, {
       status: 302,

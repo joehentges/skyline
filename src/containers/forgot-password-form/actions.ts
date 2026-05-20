@@ -2,10 +2,9 @@
 
 import { createId } from "@paralleldrive/cuid2";
 import { eq } from "drizzle-orm";
-import { kv } from "@/client/kv";
-import { KV_PREFIX, TOKEN_TTL } from "@/config";
+import { TOKEN_TTL } from "@/config";
 import { database } from "@/db";
-import { usersTable } from "@/db/schemas";
+import { tokensTable, usersTable } from "@/db/schemas";
 import { rateLimitByKey } from "@/lib/limiter";
 import { unauthenticatedAction } from "@/lib/safe-action";
 import { sendResetPasswordEmail } from "@/lib/send-email";
@@ -32,16 +31,12 @@ export const sendForgotPasswordAction = unauthenticatedAction
     const verificationToken = createId();
     const expiresAt = new Date(Date.now() + TOKEN_TTL.PASSWORD_RESET_EMAIL);
 
-    // Save verification token in KV with expiration
-    await kv.set(
-      `${KV_PREFIX.PASSWORD_RESET}:${verificationToken}`,
-      JSON.stringify({
-        userId: user.id,
-        expiresAt: expiresAt.toISOString(),
-      }),
-      "EX",
-      Math.floor((expiresAt.getTime() - Date.now()) / 1000),
-    );
+    await database.insert(tokensTable).values({
+      token: verificationToken,
+      type: "password-reset",
+      email: parsedInput.email,
+      expiresAt,
+    });
 
     await sendResetPasswordEmail(parsedInput.email, verificationToken);
   });

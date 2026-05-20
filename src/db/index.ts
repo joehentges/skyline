@@ -4,8 +4,11 @@ import postgres from "postgres";
 import { env } from "@/env";
 
 import {
-  kvStoreTable,
+  sessionsRelations,
+  sessionsTable,
   subscriptionStatuses,
+  tokensTable,
+  tokenTypes,
   userSubscriptionsRelations,
   userSubscriptionsTable,
   usersRelations,
@@ -13,12 +16,15 @@ import {
 } from "./schemas";
 
 const schema = {
-  kvStoreTable,
-  usersTable,
-  userSubscriptionsTable,
+  sessionsRelations,
+  sessionsTable,
   subscriptionStatuses,
-  usersRelations,
+  tokenTypes,
+  tokensTable,
   userSubscriptionsRelations,
+  userSubscriptionsTable,
+  usersRelations,
+  usersTable,
 };
 
 type GlobalWithDatabase = typeof globalThis & {

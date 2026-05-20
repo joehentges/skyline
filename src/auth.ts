@@ -5,7 +5,6 @@ import {
 } from "@oslojs/encoding";
 import { eq } from "drizzle-orm";
 import { cookies as nextCookies } from "next/headers";
-import { kv } from "@/client/kv";
 import { AUTH_SESSION_TTL } from "@/config";
 import { database } from "@/db";
 import { type User, usersTable } from "@/db/schemas";
@@ -15,7 +14,7 @@ import {
   type CreateCacheSessionParams,
   createCacheSession,
   deleteCacheSession,
-  getSessionKey,
+  getCacheSession,
   updateCacheSession,
 } from "./cache-session";
 
@@ -79,12 +78,10 @@ async function validateSessionToken(
 ): Promise<SessionValidationResult | null> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
-  const sessionStr = await kv.get(getSessionKey(userId, sessionId));
-  if (!sessionStr) {
+  const session = await getCacheSession(sessionId, userId);
+  if (!session) {
     return null;
   }
-
-  const session = JSON.parse(sessionStr) as CacheSession;
 
   if (Date.now() >= session.expiresAt) {
     await deleteCacheSession(sessionId, userId);

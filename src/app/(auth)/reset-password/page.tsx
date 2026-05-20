@@ -1,8 +1,9 @@
+import { and, eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { kv } from "@/client/kv";
-import { KV_PREFIX } from "@/config";
 import { ResetPasswordForm } from "@/containers/reset-password-form";
+import { database } from "@/db";
+import { tokensTable } from "@/db/schemas";
 
 interface ResetPasswordPageProps {
   searchParams: Promise<{ token?: string }>;
@@ -15,9 +16,14 @@ export default async function ResetPasswordPage(props: ResetPasswordPageProps) {
     return notFound();
   }
 
-  const resetTokenStr = await kv.get(`${KV_PREFIX.PASSWORD_RESET}:${token}`);
+  const tokenRow = await database.query.tokensTable.findFirst({
+    where: and(
+      eq(tokensTable.token, token),
+      eq(tokensTable.type, "password-reset")
+    ),
+  });
 
-  if (!resetTokenStr) {
+  if (!tokenRow || new Date() > tokenRow.expiresAt) {
     return notFound();
   }
 

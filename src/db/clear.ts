@@ -2,8 +2,6 @@ import "dotenv/config";
 
 import { sql } from "drizzle-orm";
 
-import { kv } from "@/client/kv";
-
 import { database, pg } from "./index";
 
 async function main() {
@@ -11,8 +9,6 @@ async function main() {
   if (!tablesSchema) {
     throw new Error("Schema not loaded");
   }
-
-  await kv.flushall();
 
   await database.execute(sql.raw(`DROP SCHEMA IF EXISTS "drizzle" CASCADE;`));
 

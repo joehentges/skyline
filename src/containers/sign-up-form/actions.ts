@@ -2,14 +2,13 @@
 
 import crypto from "node:crypto";
 import argon2 from "argon2";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { cookies as nextCookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { kv } from "@/client/kv";
 import { stripe } from "@/client/stripe";
-import { AFTER_SIGN_IN_URL, KV_PREFIX, TOKEN_TTL } from "@/config";
+import { AFTER_SIGN_IN_URL, TOKEN_TTL } from "@/config";
 import { database } from "@/db";
-import { userSubscriptionsTable, usersTable } from "@/db/schemas";
+import { tokensTable, userSubscriptionsTable, usersTable } from "@/db/schemas";
 import { env } from "@/env";
 import { getIp } from "@/lib/get-ip";
 import { rateLimitByIp, rateLimitByKey } from "@/lib/limiter";
@@ -45,16 +44,22 @@ export const sendEmailVerificationCodeAction = unauthenticatedAction
     const token = crypto.randomInt(100_000, 1_000_000).toString();
     const expiresAt = new Date(Date.now() + TOKEN_TTL.EMAIL_VERIFICATION);
 
-    // Save verification token in KV with expiration
-    await kv.set(
-      `${KV_PREFIX.VERIFY_EMAIL}:${token}`,
-      JSON.stringify({
-        email: parsedInput.email,
-        expiresAt: expiresAt.toISOString(),
-      }),
-      "EX",
-      Math.floor((expiresAt.getTime() - Date.now()) / 1000),
-    );
+    // Delete any existing verification tokens for this email before inserting a new one
+    await database
+      .delete(tokensTable)
+      .where(
+        and(
+          eq(tokensTable.email, parsedInput.email),
+          eq(tokensTable.type, "email-verification")
+        )
+      );
+
+    await database.insert(tokensTable).values({
+      token,
+      type: "email-verification",
+      email: parsedInput.email,
+      expiresAt,
+    });
 
     await sendVerifyEmail(parsedInput.email, token);
 
@@ -70,25 +75,22 @@ export const verifyEmailAction = unauthenticatedAction
       window: 10_000,
     });
 
-    const tokenInfoStr = await kv.get(
-      `${KV_PREFIX.VERIFY_EMAIL}:${parsedInput.token}`,
-    );
+    const tokenRow = await database.query.tokensTable.findFirst({
+      where: and(
+        eq(tokensTable.token, parsedInput.token),
+        eq(tokensTable.type, "email-verification")
+      ),
+    });
 
-    if (!tokenInfoStr) {
+    if (!tokenRow) {
       throw new Error("Invalid token");
     }
 
-    const tokenInfo = JSON.parse(tokenInfoStr) as {
-      email: string;
-      expiresAt: string;
-    };
-
-    // Check if token is expired (although kv should have auto-deleted it)
-    if (new Date() > new Date(tokenInfo.expiresAt)) {
+    if (new Date() > tokenRow.expiresAt) {
       throw new Error("Token has expired");
     }
 
-    if (tokenInfo.email !== parsedInput.email) {
+    if (tokenRow.email !== parsedInput.email) {
       throw new Error("Invalid token");
     }
 

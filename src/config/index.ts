@@ -9,12 +9,6 @@ export const TOKEN_TTL = {
 
 export const REFERRAL_COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days
 
-export const KV_PREFIX = {
-  PASSWORD_RESET: "password-reset",
-  MAGIC_SIGN_IN: "magic-sign-in",
-  VERIFY_EMAIL: "verify-email",
-};
-
 export const AFTER_SIGN_IN_URL = "/dashboard";
 export const SIGN_IN_URL = "/sign-in";
 

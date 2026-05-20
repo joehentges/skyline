@@ -1,12 +1,11 @@
 "use server";
 
 import argon2 from "argon2";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { kv } from "@/client/kv";
 import { SIGN_IN_URL } from "@/config";
 import { database } from "@/db";
-import { usersTable } from "@/db/schemas";
+import { tokensTable, usersTable } from "@/db/schemas";
 import { rateLimitByKey } from "@/lib/limiter";
 import { unauthenticatedAction } from "@/lib/safe-action";
 
@@ -21,25 +20,23 @@ export const resetPasswordAction = unauthenticatedAction
       window: 10_000,
     });
 
-    const passwordResetInfoStr = await kv.get(
-      `password-reset:${parsedInput.token}`
-    );
+    const tokenRow = await database.query.tokensTable.findFirst({
+      where: and(
+        eq(tokensTable.token, parsedInput.token),
+        eq(tokensTable.type, "password-reset")
+      ),
+    });
 
-    if (!passwordResetInfoStr) {
+    if (!tokenRow) {
       throw new Error("Invalid token");
     }
 
-    const passwordResetInfo = JSON.parse(passwordResetInfoStr) as {
-      userId: string;
-      expiresAt: string;
-    };
-
-    if (new Date() > new Date(passwordResetInfo.expiresAt)) {
+    if (new Date() > tokenRow.expiresAt) {
       throw new Error("Token has expired");
     }
 
     const user = await database.query.usersTable.findFirst({
-      where: eq(usersTable.id, passwordResetInfo.userId),
+      where: eq(usersTable.email, tokenRow.email),
     });
 
     if (!user) {
@@ -50,12 +47,17 @@ export const resetPasswordAction = unauthenticatedAction
 
     await database
       .update(usersTable)
-      .set({
-        passwordHash,
-      })
+      .set({ passwordHash })
       .where(eq(usersTable.id, user.id));
 
-    await kv.del(`password-reset:${parsedInput.token}`);
+    await database
+      .delete(tokensTable)
+      .where(
+        and(
+          eq(tokensTable.token, parsedInput.token),
+          eq(tokensTable.type, "password-reset")
+        )
+      );
 
     redirect(SIGN_IN_URL);
   });

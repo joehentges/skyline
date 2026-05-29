@@ -19,7 +19,7 @@
     "db:reset": "npm run db:clear && npm run db:migrate"
   },
   "dependencies": {
-    "@hookform/resolvers": "5.2.2",
+    "@hookform/resolvers": "5.4.0",
     "@marsidev/react-turnstile": "1.5.2",
     "@oslojs/crypto": "1.0.1",
     "@oslojs/encoding": "1.1.0",

@@ -73,4 +73,4 @@ Open the app at [https://local.drizzle.studio/](https://local.drizzle.studio/)
 
 To change the theme / colors, open the `src/styles/globals.css` file and update the `:root` and `.dark` sections.
 
-Use [https://shadcn-theme-generator.hyperlaunch.pro](https://shadcn-theme-generator.hyperlaunch.pro) for theme generation.
+Use [https://tweakcn.com/editor/theme](https://tweakcn.com/editor/theme) for theme generation.

@@ -44,7 +44,7 @@
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "react-email": "6.3.3",
-    "react-hook-form": "7.76.1",
+    "react-hook-form": "7.77.0",
     "resend": "6.12.4",
     "sonner": "2.0.7",
     "stripe": "22.1.1",
